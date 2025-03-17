@@ -34,7 +34,7 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+    <div className="h-screen flex flex-col w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shrink-0">
       {/* Header with logo */}
       <div className="px-4 py-5 flex items-center border-b border-gray-200 dark:border-gray-700">
         <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">PACT</span>
@@ -44,8 +44,8 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Navigation tabs */}
-      <nav className="flex-1 px-2 py-4 space-y-1">
+      {/* Navigation tabs - doesn't scroll */}
+      <nav className="px-2 py-4 space-y-1">
         {tabLinks.map((tab) => {
           // Skip insights tab if not authenticated and it requires auth
           if (tab.requiresAuth && !isAuthenticated && tab.path === '/insights') {
@@ -70,7 +70,7 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* History section */}
+      {/* History section with its own scroll */}
       <div className="flex-1 overflow-y-auto px-3 py-4 border-t border-gray-200 dark:border-gray-700">
         <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider dark:text-gray-400">
           Recent Conversations

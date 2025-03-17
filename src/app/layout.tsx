@@ -1,6 +1,5 @@
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Header } from '@/components/layout/Header';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import Sidebar from '@/components/layout/Sidebar';
@@ -19,13 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased min-h-screen`}>
+      <body className={`${inter.className} antialiased`}>
         <ThemeProvider>
           <AuthProvider>
-            <div className="flex min-h-screen">
+            <div className="flex h-screen overflow-hidden">
               <Sidebar />
-              <div className="flex-1 flex flex-col">
-                <Header />
+              <div className="flex-1 overflow-y-auto">
                 <main className="flex-1">
                   {children}
                 </main>
