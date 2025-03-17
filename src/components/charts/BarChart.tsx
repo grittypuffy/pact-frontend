@@ -22,10 +22,12 @@ ChartJS.register(
   Legend
 );
 
+/*
 interface DataPoint {
   category: string;
   count: number;
 }
+*/
 
 interface BarChartProps {
   title?: string;

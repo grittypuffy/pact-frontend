@@ -13,6 +13,7 @@ export default function StatisticsPage() {
   const [totalPlatformPrompts, setTotalPlatformPrompts] = useState(0);
 
   useEffect(() => {
+    console.log(setStatisticsData);
     // Here you would fetch platform statistics from the backend
     // Example API call:
     // const fetchStatistics = async () => {

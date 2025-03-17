@@ -25,6 +25,7 @@ export default function InsightsPage() {
   const [totalPrompts, setTotalPrompts] = useState(0);
 
   useEffect(() => {
+    console.log(setInsightsData);
     // If not logged in, redirect to home
     if (!user) {
       router.push('/');

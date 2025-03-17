@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PromptInput from '@/components/prompt/PromptInput';
 import PromptComparison from '@/components/prompt/PromptComparison';
@@ -100,6 +100,7 @@ export default function Home() {
   };
 
   return (
+
     <div className="min-h-screen">
       {/* Header section */}
       <header className="w-full bg-white dark:bg-gray-800 shadow-sm p-4">
@@ -115,7 +116,7 @@ export default function Home() {
       <div className="container mx-auto p-4">
         {/* Input section always visible */}
         <PromptInput onSubmit={handlePromptSubmit} isProcessing={isProcessing} />
-        
+
         {/* Results section only visible after processing */}
         {showResults && promptData && (
           <div className="mt-8 space-y-8 animate-fadeIn">

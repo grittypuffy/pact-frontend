@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ThemeToggle from './ThemeToggle';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -43,7 +44,7 @@ export const Header = () => {
               className="hidden md:flex items-center space-x-2 text-sm"
             >
               {user.imageUrl && (
-                <img 
+                <Image
                   src={user.imageUrl} 
                   alt={user.name} 
                   className="w-8 h-8 rounded-full"
@@ -108,7 +109,7 @@ export const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {user.imageUrl && (
-                    <img 
+                    <Image
                       src={user.imageUrl} 
                       alt={user.name} 
                       className="w-6 h-6 rounded-full"

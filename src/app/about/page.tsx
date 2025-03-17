@@ -63,7 +63,7 @@ export default function About() {
               </div>
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">For Developers</h3>
-                <p className="text-gray-700 dark:text-gray-300">Improve your application's AI interactions by ensuring the prompts your systems generate are optimized for the best possible outcomes.</p>
+                <p className="text-gray-700 dark:text-gray-300">Improve your application&apos;s AI interactions by ensuring the prompts your systems generate are optimized for the best possible outcomes.</p>
               </div>
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                 <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">For Businesses</h3>

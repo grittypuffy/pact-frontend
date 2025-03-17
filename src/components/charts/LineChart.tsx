@@ -24,11 +24,13 @@ ChartJS.register(
   Legend
 );
 
+/*
 interface DataPoint {
   promptNumber: number;
   userScore: number;
   optimizedScore: number;
 }
+*/
 
 interface LineChartProps {
   title: string;
