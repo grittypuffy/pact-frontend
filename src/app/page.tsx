@@ -8,15 +8,17 @@ import StatisticsComparison from '@/components/prompt/StatisticsComparison';
 import PromptResponse from '@/components/prompt/PromptResponse';
 import { sampleHistory, PromptHistory } from '@/lib/data';
 
-export default function Home() {
+// SearchParamsHandler component that uses useSearchParams
+function SearchParamsHandler({ 
+  setPromptData, 
+  setShowResults 
+}: { 
+  setPromptData: React.Dispatch<React.SetStateAction<PromptHistory | null>>, 
+  setShowResults: React.Dispatch<React.SetStateAction<boolean>> 
+}) {
   const searchParams = useSearchParams();
   const historyId = searchParams ? searchParams.get('id') : null;
   
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [promptData, setPromptData] = useState<PromptHistory | null>(null);
-  const [showResults, setShowResults] = useState(false);
-
-  // Load historical prompt if ID is provided
   useEffect(() => {
     if (historyId) {
       const foundPrompt = sampleHistory.find(item => item.id === historyId);
@@ -28,7 +30,16 @@ export default function Home() {
       setPromptData(null);
       setShowResults(false);
     }
-  }, [historyId]);
+  }, [historyId, setPromptData, setShowResults]);
+  
+  return null; // This component doesn't render anything
+}
+
+// Main component
+export default function Home() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [promptData, setPromptData] = useState<PromptHistory | null>(null);
+  const [showResults, setShowResults] = useState(false);
 
   const handlePromptSubmit = async (prompt: string) => {
     setIsProcessing(true);
@@ -100,7 +111,6 @@ export default function Home() {
   };
 
   return (
-
     <div className="min-h-screen">
       {/* Header section */}
       <header className="w-full bg-white dark:bg-gray-800 shadow-sm p-4">
@@ -111,6 +121,14 @@ export default function Home() {
           Optimize your prompts for better AI responses
         </p>
       </header>
+
+      {/* Suspense boundary for the component using useSearchParams */}
+      <Suspense fallback={<div className="text-center p-4">Loading...</div>}>
+        <SearchParamsHandler 
+          setPromptData={setPromptData} 
+          setShowResults={setShowResults} 
+        />
+      </Suspense>
 
       {/* Main content */}
       <div className="container mx-auto p-4">
