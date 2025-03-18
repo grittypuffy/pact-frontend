@@ -37,5 +37,5 @@ jobs:
         containerAppName: ${{ secrets.CA_FRONTEND_NAME }}
         resourceGroup: ${{ secrets.RG_NAME }}
         imageToDeploy: ${{ secrets.ACR_LOGIN_SERVER }}/pact-frontend:latest
-        buildArguments:
-          NEXT_PUBLIC_BACKEND_URL: ${{ secrets.NEXT_PUBLIC_BACKEND_URL }}
+        buildArguments: |
+          "NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}"
