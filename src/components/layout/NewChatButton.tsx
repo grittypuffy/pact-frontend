@@ -7,7 +7,8 @@ const NewChatButton = () => {
   return (
     <Link href="/" className="block w-full">
       <div
-        className="flex items-center justify-center px-4 py-2 my-2 text-sm font-medium rounded-md transition-colors"
+        className="w-fit mx-auto flex items-center justify-center px-4 py-2 my-2 text-sm font-medium 
+             rounded-md transition-colors"
         style={{
           background: 'rgba(var(--primary-color))',
           color: "var(--button-text-color, #fff)",

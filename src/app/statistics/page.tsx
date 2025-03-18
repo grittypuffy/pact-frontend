@@ -46,18 +46,43 @@ export default function StatisticsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Platform Statistics</h1>
+      <h1 
+        className="text-3xl font-bold mb-8"
+        style={{ color: 'rgb(var(--foreground-rgb))' }}
+      >
+        Platform Statistics
+      </h1>
       
-      <div className="bg-card rounded-lg p-6 mb-8 text-center">
+      <div 
+        className="rounded-lg p-6 mb-8 text-center shadow-md transition-all duration-300"
+        style={{
+          background: 'rgb(var(--card-rgb), 0.1)',
+          color: 'rgb(var(--foreground-rgb))',
+          borderColor: 'rgb(var(--foreground-rgb), 0.1)',
+        }}
+      >
         <h2 className="text-2xl font-semibold mb-2">Total Platform Prompts</h2>
-        <p className="text-4xl font-bold">{totalPlatformPrompts.toLocaleString()}</p>
+        <p 
+          className="text-4xl font-bold"
+          style={{ color: 'rgb(var(--primary-color))' }}
+        >
+          {totalPlatformPrompts.toLocaleString()}
+        </p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {categories.map((category) => {
           const data = statisticsData[category.id];
           return (
-            <div key={category.id} className="bg-card rounded-lg p-4">
+            <div 
+              key={category.id} 
+              className="rounded-lg p-4 shadow-md transition-all duration-300"
+              style={{
+                background: 'rgb(var(--card-rgb), 0.1)',
+                color: 'rgb(var(--foreground-rgb))',
+                borderColor: 'rgb(var(--foreground-rgb), 0.1)',
+              }}
+            >
               <h3 className="text-xl font-semibold mb-4">{category.name}</h3>
               {data && (
                 <BarChart 
@@ -67,8 +92,8 @@ export default function StatisticsPage() {
                       {
                         label: 'Number of Prompts',
                         data,
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderColor: '#3b82f6',
+                        backgroundColor: 'blue',
+                        borderColor: 'blue',
                         borderWidth: 1,
                       }
                     ]

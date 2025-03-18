@@ -1,33 +1,49 @@
+'use client';
+
 import React from 'react';
 
 export default function About() {
   return (
     <div className="min-h-screen">
-      <header className="w-full bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
+      <header 
+        className="w-full p-4 shadow-sm transition-all duration-300 border-b"
+        style={{
+          background: 'rgba(var(--primary-color), 0.2)',
+          color: 'rgb(var(--foreground-rgb))',
+          borderColor: 'rgba(var(--foreground-rgb), 0.2)',
+        }}
+      >
+        <h1 className="text-2xl font-bold text-center">
           About PACT
         </h1>
       </header>
 
       <div className="container mx-auto p-6 max-w-4xl">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div 
+          className="rounded-lg shadow-md p-6 transition-all duration-300"
+          style={{
+            background: 'rgba(var(--card-rgb), 0.1)',
+            color: 'rgb(var(--foreground-rgb))',
+            borderColor: 'rgba(var(--foreground-rgb), 0.1)',
+          }}
+        >
           <section className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-xl font-bold mb-4">
               What is PACT?
             </h2>
-            <p className="text-gray-700 dark:text-gray-300 mb-4">
+            <p className="mb-4">
               PACT (Prompt Auto-Correction and Testing) is a powerful tool designed to optimize and enhance your prompts before they are processed by AI language models. Our platform automatically identifies and addresses common issues in prompts to ensure you get the best possible AI responses.
             </p>
-            <p className="text-gray-700 dark:text-gray-300">
+            <p>
               By analyzing and improving your prompts, PACT helps you avoid problematic content, refine unclear instructions, and eliminate biases that might affect the quality of AI responses.
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-xl font-bold mb-4">
               Key Features
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+            <ul className="list-disc pl-6 space-y-2">
               <li><strong>Grammar and Spell Checking:</strong> Automatically corrects grammar and spelling errors in your prompts.</li>
               <li><strong>Sensitive Information Detection:</strong> Identifies and suggests removal of personal or sensitive information.</li>
               <li><strong>Bias Mitigation:</strong> Detects and addresses gender and racial biases in your prompts.</li>
@@ -39,10 +55,10 @@ export default function About() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-xl font-bold mb-4">
               How It Works
             </h2>
-            <ol className="list-decimal pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+            <ol className="list-decimal pl-6 space-y-2">
               <li>Enter your prompt in the input field on the home page.</li>
               <li>PACT analyzes your prompt across multiple dimensions.</li>
               <li>Our system generates an optimized version of your prompt.</li>
@@ -53,25 +69,49 @@ export default function About() {
           </section>
 
           <section>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-xl font-bold mb-4">
               Why Use PACT?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">For Everyday Users</h3>
-                <p className="text-gray-700 dark:text-gray-300">Get better, more accurate responses from AI systems. Avoid common pitfalls and learn how to craft effective prompts through practical examples.</p>
+              <div 
+                className="rounded-lg p-4 transition-all duration-300"
+                style={{ 
+                  border: '1px solid rgba(var(--foreground-rgb), 0.2)',
+                  background: 'rgba(var(--card-rgb), 0.05)'
+                }}
+              >
+                <h3 className="font-semibold mb-2">For Everyday Users</h3>
+                <p>Get better, more accurate responses from AI systems. Avoid common pitfalls and learn how to craft effective prompts through practical examples.</p>
               </div>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">For Developers</h3>
-                <p className="text-gray-700 dark:text-gray-300">Improve your application&apos;s AI interactions by ensuring the prompts your systems generate are optimized for the best possible outcomes.</p>
+              <div 
+                className="rounded-lg p-4 transition-all duration-300"
+                style={{ 
+                  border: '1px solid rgba(var(--foreground-rgb), 0.2)',
+                  background: 'rgba(var(--card-rgb), 0.05)'
+                }}
+              >
+                <h3 className="font-semibold mb-2">For Developers</h3>
+                <p>Improve your application&apos;s AI interactions by ensuring the prompts your systems generate are optimized for the best possible outcomes.</p>
               </div>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">For Businesses</h3>
-                <p className="text-gray-700 dark:text-gray-300">Ensure your team consistently produces high-quality prompts that adhere to your guidelines and policies, improving efficiency and results.</p>
+              <div 
+                className="rounded-lg p-4 transition-all duration-300"
+                style={{ 
+                  border: '1px solid rgba(var(--foreground-rgb), 0.2)',
+                  background: 'rgba(var(--card-rgb), 0.05)'
+                }}
+              >
+                <h3 className="font-semibold mb-2">For Businesses</h3>
+                <p>Ensure your team consistently produces high-quality prompts that adhere to your guidelines and policies, improving efficiency and results.</p>
               </div>
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">For Researchers</h3>
-                <p className="text-gray-700 dark:text-gray-300">Study patterns in prompt optimization and use the insights to develop better techniques for human-AI interaction.</p>
+              <div 
+                className="rounded-lg p-4 transition-all duration-300"
+                style={{ 
+                  border: '1px solid rgba(var(--foreground-rgb), 0.2)',
+                  background: 'rgba(var(--card-rgb), 0.05)'
+                }}
+              >
+                <h3 className="font-semibold mb-2">For Researchers</h3>
+                <p>Study patterns in prompt optimization and use the insights to develop better techniques for human-AI interaction.</p>
               </div>
             </div>
           </section>

@@ -63,18 +63,43 @@ export default function InsightsPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Insights</h1>
+      <h1 
+        className="text-3xl font-bold mb-6"
+        style={{ color: 'rgb(var(--foreground-rgb))' }}
+      >
+        Your Insights
+      </h1>
       
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
+      <div 
+        className="rounded-lg shadow p-6 mb-8 transition-all duration-300"
+        style={{
+          background: 'rgb(var(--card-rgb), 0.1)',
+          color: 'rgb(var(--foreground-rgb))',
+          borderColor: 'rgb(var(--foreground-rgb), 0.1)',
+        }}
+      >
         <h2 className="text-xl font-semibold mb-2">Total Prompts</h2>
-        <p className="text-4xl font-bold text-blue-600">{totalPrompts}</p>
+        <p 
+          className="text-4xl font-bold"
+          style={{ color: 'rgb(var(--primary-color))' }}
+        >
+          {totalPrompts}
+        </p>
       </div>
       
       <div className="grid md:grid-cols-2 gap-6">
         {categories.map((category) => {
           const data = insightsData[category.id as keyof InsightsData];
           return (
-            <div key={category.id} className="bg-white rounded-lg shadow p-6">
+            <div 
+              key={category.id} 
+              className="rounded-lg shadow p-6 transition-all duration-300"
+              style={{
+                background: 'rgb(var(--card-rgb), 0.1)',
+                color: 'rgb(var(--foreground-rgb))',
+                borderColor: 'rgb(var(--foreground-rgb), 0.1)',
+              }}
+            >
               <h3 className="text-lg font-semibold mb-4">{category.name}</h3>
               {data && (
                 <LineChart
@@ -85,14 +110,14 @@ export default function InsightsPage() {
                       {
                         label: 'User Prompts',
                         data: Array.isArray(data) ? data.map(d => d.userScore) : [],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'blue',
+                        backgroundColor: 'blue',
                       },
                       {
                         label: 'Optimized Prompts',
                         data: Array.isArray(data) ? data.map(d => d.optimizedScore) : [],
                         borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                        backgroundColor: 'rgb(16, 185, 129, 0.5)',
                       }
                     ]
                   }}

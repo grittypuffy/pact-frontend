@@ -10,10 +10,10 @@ import { sampleHistory, PromptHistory } from '@/lib/data';
 
 // SearchParamsHandler component that uses useSearchParams
 function SearchParamsHandler({ 
-  setPromptData, 
+  setConversationHistory, 
   setShowResults 
 }: { 
-  setPromptData: React.Dispatch<React.SetStateAction<PromptHistory | null>>, 
+  setConversationHistory: React.Dispatch<React.SetStateAction<PromptHistory[]>>, 
   setShowResults: React.Dispatch<React.SetStateAction<boolean>> 
 }) {
   const searchParams = useSearchParams();
@@ -23,14 +23,15 @@ function SearchParamsHandler({
     if (historyId) {
       const foundPrompt = sampleHistory.find(item => item.id === historyId);
       if (foundPrompt) {
-        setPromptData(foundPrompt);
+        // Initialize conversation history with the found prompt
+        setConversationHistory([foundPrompt]);
         setShowResults(true);
       }
     } else {
-      setPromptData(null);
+      setConversationHistory([]);
       setShowResults(false);
     }
-  }, [historyId, setPromptData, setShowResults]);
+  }, [historyId, setConversationHistory, setShowResults]);
   
   return null; // This component doesn't render anything
 }
@@ -38,7 +39,8 @@ function SearchParamsHandler({
 // Main component
 export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [promptData, setPromptData] = useState<PromptHistory | null>(null);
+  // Changed from single promptData to an array of conversation history
+  const [conversationHistory, setConversationHistory] = useState<PromptHistory[]>([]);
   const [showResults, setShowResults] = useState(false);
 
   const handlePromptSubmit = async (prompt: string) => {
@@ -79,7 +81,8 @@ export default function Home() {
         }
       };
       
-      setPromptData(mockResponse);
+      // Add the new prompt and response to the conversation history
+      setConversationHistory(prevHistory => [...prevHistory, mockResponse]);
       setShowResults(true);
     } catch (error) {
       console.error('Error processing prompt:', error);
@@ -87,27 +90,6 @@ export default function Home() {
     } finally {
       setIsProcessing(false);
     }
-    
-    /* 
-    // Real implementation would look something like:
-    try {
-      const response = await fetch('/api/optimize-prompt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt })
-      });
-      
-      if (!response.ok) throw new Error('Failed to process prompt');
-      
-      const data = await response.json();
-      setPromptData(data);
-      setShowResults(true);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setIsProcessing(false);
-    }
-    */
   };
 
   return (
@@ -132,35 +114,43 @@ export default function Home() {
       {/* Suspense boundary for the component using useSearchParams */}
       <Suspense fallback={<div className="text-center p-4">Loading...</div>}>
         <SearchParamsHandler 
-          setPromptData={setPromptData} 
+          setConversationHistory={setConversationHistory} 
           setShowResults={setShowResults} 
         />
       </Suspense>
 
       {/* Main content */}
       <div className="container mx-auto p-4">
-        {/* Input section always visible */}
-        <PromptInput onSubmit={handlePromptSubmit} isProcessing={isProcessing} />
 
-        {/* Results section only visible after processing */}
-        {showResults && promptData && (
-          <div className="mt-8 space-y-8 animate-fadeIn">
-            <PromptComparison 
-              originalPrompt={promptData.originalPrompt} 
-              optimizedPrompt={promptData.optimizedPrompt} 
-            />
-            
-            <StatisticsComparison 
-              originalStats={promptData.originalStats} 
-              optimizedStats={promptData.optimizedStats} 
-            />
-            
-            <PromptResponse 
-              originalResponse={promptData.originalResponse} 
-              optimizedResponse={promptData.optimizedResponse} 
-            />
+        {/* Results section below input, ordered chronologically (oldest first) */}
+        {showResults && conversationHistory.length > 0 && (
+          <div className="mt-8">
+            {conversationHistory.map((promptData, index) => (
+              <div key={promptData.id} className="mb-12 animate-fadeIn border-b pb-8 last:border-b-0">
+                <h2 className="text-xl font-semibold mb-4">
+                  Prompt {index + 1} - {new Date(promptData.date).toLocaleString()}
+                </h2>
+                <PromptComparison 
+                  originalPrompt={promptData.originalPrompt} 
+                  optimizedPrompt={promptData.optimizedPrompt} 
+                />            
+                <StatisticsComparison 
+                  originalStats={promptData.originalStats} 
+                  optimizedStats={promptData.optimizedStats} 
+                />            
+                <PromptResponse 
+                  originalResponse={promptData.originalResponse} 
+                  optimizedResponse={promptData.optimizedResponse} 
+                />
+              </div>
+            ))}
           </div>
         )}
+
+        {/* Input section at the top */}
+        <div className="mt-8 space-y-4 animate-fadeIn">
+          <PromptInput onSubmit={handlePromptSubmit} isProcessing={isProcessing} />
+        </div>
       </div>
     </div>
   );
