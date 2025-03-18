@@ -40,4 +40,4 @@ ARG NEXT_PUBLIC_BACKEND_URL
 ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
 
 # Start the application in production mode
-CMD ["yarn", "start"]
+ENTRYPOINT ["yarn", "start"]
