@@ -21,15 +21,35 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ historyItem }) => {
 
   return (
     <Link href={`/?id=${historyItem.id}`} className="block">
-      <div className="flex items-center px-2 py-2 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-        <div className="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-500 dark:text-blue-300">
+      <div
+        className="flex items-center px-2 py-2 text-sm rounded-md transition-colors"
+        style={{
+          backgroundColor: "rgb(var(--background-rgb))",
+          color: "rgb(var(--foreground-rgb))",
+        }}
+      >
+        <div
+          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+          style={{
+            backgroundColor: "rgba(var(--primary-color), 0.2)",
+            color: "rgb(var(--primary-color))",
+          }}
+        >
           {historyItem.id[0].toUpperCase()}
         </div>
         <div className="ml-3 overflow-hidden">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
+          <p
+            className="text-sm font-medium truncate"
+            style={{ color: "rgb(var(--foreground-rgb))" }}
+          >
             {truncateText(historyItem.originalPrompt)}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{formattedDate}</p>
+          <p
+            className="text-xs"
+            style={{ color: "rgba(var(--foreground-rgb), 0.7)" }}
+          >
+            {formattedDate}
+          </p>
         </div>
       </div>
     </Link>

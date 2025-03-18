@@ -113,11 +113,18 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Header section */}
-      <header className="w-full bg-white dark:bg-gray-800 shadow-sm p-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white text-center">
+      <header 
+        className="w-full p-4 shadow-sm transition-all duration-300 border-b"
+        style={{
+          background: 'rgba(var(--primary-color), 0.2)',
+          color: 'rgb(var(--foreground-rgb))',
+          borderColor: 'rgba(var(--foreground-rgb), 0.2)',
+        }}
+      >
+        <h1 className="text-2xl font-bold text-center">
           PACT: Prompt Auto-Correction and Testing
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 text-center mt-2">
+        <p className="text-center mt-2">
           Optimize your prompts for better AI responses
         </p>
       </header>

@@ -29,31 +29,73 @@ const StatisticsComparison: React.FC<StatisticsComparisonProps> = ({ originalSta
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4">
-      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Prompt Analysis</h3>
+      <h3 
+        className="text-lg font-medium mb-4" 
+        style={{ color: "rgb(var(--text-color))" }}
+      >
+        Prompt Analysis
+      </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.map((metric) => (
-          <div key={metric.key} className="border border-gray-200 rounded-lg shadow-sm p-4 bg-white dark:bg-gray-800 dark:border-gray-700">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{metric.label}</h4>
+          <div 
+            key={metric.key} 
+            className="border rounded-lg shadow-sm p-4 transition-colors"
+            style={{
+              backgroundColor: "rgb(var(--background-rgb))",
+              borderColor: "rgba(var(--foreground-rgb), 0.2)",
+              color: "rgb(var(--foreground-rgb))",
+              boxShadow: "0 1px 3px rgba(var(--foreground-rgb), 0.1)",
+            }}
+          >        
+            <h4 
+              className="text-sm font-medium mb-2" 
+              style={{ color: "rgb(var(--text-color))" }} 
+            >
+              {metric.label}
+            </h4>
             <div className="flex items-center space-x-2">
+              {/* Original Value */}
               <div className="w-1/2">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Original</div>
+                <div 
+                  className="text-xs mb-1" 
+                  style={{ color: "rgba(var(--text-color), 0.7)" }}
+                >
+                  Original
+                </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                   <div 
                     className={`h-2.5 rounded-full ${getMetricColor(metric.originalValue)}`} 
                     style={{ width: `${metric.originalValue}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-right mt-1">{metric.originalValue}%</div>
+                <div 
+                  className="text-xs text-right mt-1" 
+                  style={{ color: "rgba(var(--text-color), 0.9)" }}
+                >
+                  {metric.originalValue}%
+                </div>
               </div>
+              
+              {/* Optimized Value */}
               <div className="w-1/2">
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Optimized</div>
+                <div 
+                  className="text-xs mb-1" 
+                  style={{ color: "rgba(var(--text-color), 0.7)" }}
+                >
+                  Optimized
+                </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
                   <div 
                     className={`h-2.5 rounded-full ${getMetricColor(metric.optimizedValue)}`} 
                     style={{ width: `${metric.optimizedValue}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-right mt-1">{metric.optimizedValue}%</div>
+                <div 
+                  className="text-xs text-right mt-1" 
+                  style={{ color: "rgba(var(--text-color), 0.9)" }}
+                >
+                  {metric.optimizedValue}%
+                </div>
               </div>
             </div>
           </div>

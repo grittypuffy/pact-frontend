@@ -25,7 +25,13 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Enter your prompt here..."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-h-[120px] resize-y dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+            className="w-full px-4 py-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 min-h-[120px] resize-y transition-colors"
+            style={{
+              backgroundColor: "rgb(var(--background-rgb))",
+              borderColor: "rgba(var(--foreground-rgb), 0.2)",
+              color: "rgb(var(--foreground-rgb))",
+              boxShadow: "0 1px 3px rgba(var(--foreground-rgb), 0.1)",
+            }}
             disabled={isProcessing}
           />
         </div>
@@ -33,9 +39,22 @@ const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => 
           <button
             type="submit"
             disabled={isProcessing || !prompt.trim()}
-            className={`px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
-              isProcessing || !prompt.trim() ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className="px-4 py-2 rounded-md font-medium focus:outline-none focus:ring-2 transition-all"
+            style={{
+              backgroundColor: isProcessing || !prompt.trim()
+                ? "rgba(var(--primary-color), 0.5)"
+                : "rgb(var(--primary-color))",
+              color: "var(--button-text-color, #fff)",
+              cursor: isProcessing || !prompt.trim() ? "not-allowed" : "pointer",
+              opacity: isProcessing || !prompt.trim() ? 0.6 : 1,
+              transition: "background-color 0.2s ease, transform 0.1s ease",
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = isProcessing || !prompt.trim()
+                ? "rgba(var(--primary-color), 0.5)"
+                : "rgb(var(--primary-color))";
+              e.currentTarget.style.transform = "scale(1)";
+            }}
           >
             {isProcessing ? 'Processing...' : 'Submit'}
           </button>

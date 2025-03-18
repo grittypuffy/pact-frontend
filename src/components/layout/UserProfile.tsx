@@ -6,37 +6,95 @@ import { useAuth } from '@/context/AuthContext';
 const UserProfile = () => {
   const { user, isAuthenticated, login, logout } = useAuth();
   const [isLoginFormOpen, setIsLoginFormOpen] = useState(false);
+  const [isSignupFormOpen, setIsSignupFormOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login(email, password);
       setIsLoginFormOpen(false);
-      setEmail('');
-      setPassword('');
+      resetForm();
     } catch (error) {
       console.error('Login failed:', error);
     }
   };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      // In a real app, you would implement signup logic here
+      // For demo purposes, we'll just call login after signup
+      await login(email, password);
+      setIsSignupFormOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error('Signup failed:', error);
+    }
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
+    setName('');
+    setConfirmPassword('');
+  };
+
   const handleLogout = () => {
     logout();
   };
 
+  const toggleLoginForm = () => {
+    setIsLoginFormOpen(!isLoginFormOpen);
+    setIsSignupFormOpen(false);
+  };
+
+  const toggleSignupForm = () => {
+    setIsSignupFormOpen(!isSignupFormOpen);
+    setIsLoginFormOpen(false);
+  };
+
   if (isAuthenticated && user) {
     return (
-      <div className="flex items-center space-x-3">
-        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-500 dark:text-blue-300">
+      <div className="flex items-center space-x-3 w-full overflow-hidden">
+        {/* Profile Circle - Prevents shrinkage */}
+        <div
+          className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full font-bold text-lg"
+          style={{
+            backgroundColor: "rgba(var(--primary-color), 0.2)",
+            color: "rgb(var(--primary-color))",
+          }}
+        >
           {user.name[0].toUpperCase()}
         </div>
-        <div>
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{user.name}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+
+        {/* Text Container - Ensures truncation */}
+        <div className="overflow-hidden">
+          <p 
+            className="text-sm font-medium truncate max-w-xs" 
+            style={{ color: "rgb(var(--foreground-rgb))" }}
+            title={user.name} // Shows full name on hover
+          >
+            {user.name}
+          </p>
+          <p 
+            className="text-xs truncate max-w-xs" 
+            style={{ color: "rgba(var(--foreground-rgb), 0.7)" }}
+            title={user.email} // Shows full email on hover
+          >
+            {user.email}
+          </p>
         </div>
-        <button 
+
+        <button
           onClick={handleLogout}
-          className="ml-2 p-1 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          className="ml-2 p-1 text-xs transition-colors flex-shrink-0"
+          style={{
+            color: "rgba(var(--foreground-rgb), 0.7)",
+          }}
         >
           Logout
         </button>
@@ -54,7 +112,12 @@ const UserProfile = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors"
+              style={{
+                backgroundColor: "rgb(var(--background-rgb))",
+                borderColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
               required
             />
           </div>
@@ -64,33 +127,172 @@ const UserProfile = () => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors"
+              style={{
+                backgroundColor: "rgb(var(--background-rgb))",
+                borderColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
               required
             />
           </div>
           <div className="flex space-x-2">
             <button
               type="submit"
-              className="flex-1 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{
+                background: 'rgba(var(--primary-color))',
+                color: "var(--button-text-color, #fff)",
+              }}
             >
               Login
             </button>
             <button
               type="button"
-              onClick={() => setIsLoginFormOpen(false)}
-              className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+              onClick={toggleLoginForm}
+              className="flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{
+                backgroundColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
             >
               Cancel
             </button>
           </div>
+          <div className="text-center mt-2">
+            <button
+              type="button"
+              onClick={toggleSignupForm}
+              className="text-xs"
+              style={{
+                color: "rgb(var(--primary-color))",
+              }}
+            >
+              Need an account? Sign up
+            </button>
+          </div>
+        </form>
+      ) : isSignupFormOpen ? (
+        <form onSubmit={handleSignup} className="space-y-3">
+          <div>
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors"
+              style={{
+                backgroundColor: "rgb(var(--background-rgb))",
+                borderColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors"
+              style={{
+                backgroundColor: "rgb(var(--background-rgb))",
+                borderColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors"
+              style={{
+                backgroundColor: "rgb(var(--background-rgb))",
+                borderColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
+              required
+            />
+          </div>
+          <div>
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors"
+              style={{
+                backgroundColor: "rgb(var(--background-rgb))",
+                borderColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
+              required
+            />
+          </div>
+          <div className="flex space-x-2">
+            <button
+              type="submit"
+              className="flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{
+                background: 'rgba(var(--primary-color))',
+                color: "var(--button-text-color, #fff)",
+              }}
+            >
+              Sign Up
+            </button>
+            <button
+              type="button"
+              onClick={toggleSignupForm}
+              className="flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors"
+              style={{
+                backgroundColor: "rgba(var(--foreground-rgb), 0.2)",
+                color: "rgb(var(--foreground-rgb))",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+          <div className="text-center mt-2">
+            <button
+              type="button"
+              onClick={toggleLoginForm}
+              className="text-xs"
+              style={{
+                color: "rgb(var(--primary-color))",
+              }}
+            >
+              Already have an account? Log in
+            </button>
+          </div>
         </form>
       ) : (
-        <button
-          onClick={() => setIsLoginFormOpen(true)}
-          className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-        >
-          Login
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={toggleLoginForm}
+            className="flex-1 items-center px-4 py-2 text-sm font-medium rounded-md transition-colors"
+            style={{
+              background: 'rgba(var(--primary-color))',
+              color: "var(--button-text-color, #fff)",
+            }}
+          >
+            Login
+          </button>
+          <button
+            onClick={toggleSignupForm}
+            className="flex-1 items-center px-4 py-2 text-sm font-medium rounded-md transition-colors"
+            style={{
+              background: 'rgba(var(--primary-color))',
+              color: "var(--button-text-color, #fff)",
+            }}
+          >
+            Sign Up
+          </button>
+        </div>
       )}
     </div>
   );

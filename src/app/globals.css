@@ -1,17 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-rgb: 250, 250, 250;
-  --primary-color: 59, 130, 246;
-  --secondary-color: 99, 102, 241;
+  --foreground-rgb: 30, 30, 30;  /* Dark text */
+  --background-rgb: 255, 255, 255;  /* Pure white background */
+  --primary-color: 30, 64, 175; /* Dark blue for contrast */
+  --secondary-color: 79, 70, 229; /* Vibrant blue */
+
+  --card-bg: 245, 245, 245; /* Soft gray for cards */
 }
 
 [data-theme='dark'] {
-  --foreground-rgb: 255, 255, 255;
-  --background-rgb: 30, 30, 30;
-  --primary-color: 96, 165, 250;
-  --secondary-color: 129, 140, 248;
+  --foreground-rgb: 255, 255, 255;  /* White text */
+  --background-rgb: 0, 0, 0;  /* Pure black */
+  --primary-color: 96, 165, 250; /* Light blue for contrast */
+  --secondary-color: 129, 140, 248; /* Muted blue */
+  
+  --card-bg: 23, 37, 84; /* Deep blue for cards */
 }
 
 body {
@@ -19,10 +23,17 @@ body {
   background: rgb(var(--background-rgb));
 }
 
+/* Cards */
+.card {
+  background: rgb(var(--card-bg));
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -49,19 +60,16 @@ body {
   animation: fadeIn 0.3s ease-in-out;
 }
 
+/* Prompt container */
 .prompt-container {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
   transition: all 0.3s ease;
+  background: rgb(var(--card-bg));
 }
 
 .prompt-container:hover {
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-}
-
-.tab-active {
-  color: rgb(var(--primary-color));
-  border-left: 3px solid rgb(var(--primary-color));
 }
 
 /* Chat bubble styling */
