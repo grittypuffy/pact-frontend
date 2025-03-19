@@ -44,7 +44,6 @@ function SearchParamsHandler({
 // Main component
 export default function Home() {
     const [isProcessing, setIsProcessing] = useState(false);
-    // Changed from single promptData to an array of conversation history
     const [conversationHistory, setConversationHistory] = useState<
         PromptHistory[]
     >([]);
@@ -65,23 +64,72 @@ export default function Home() {
             );
             const markdownToPlainText = (markdown: string) => {
                 return markdown
-                    .replace(/###\s*/g, "")  // Remove headers
-                    .replace(/\*\*(.*?)\*\*/g, "$1")  // Remove bold formatting
-                    .replace(/-\s*/g, "")  // Remove bullet points
-                    .replace(/\n{2,}/g, "\n\n");  // Normalize extra new lines
+                    .replace(/###\s*/g, "")
+                    .replace(/\*\*(.*?)\*\*/g, "$1")
+                    .replace(/-\s*/g, "")
+                    .replace(/\n{2,}/g, "\n\n");
             };
             const responseData = response.data?.data;
             const newResponse: PromptHistory = {
                 id: "",
                 date: new Date().toISOString(),
                 originalPrompt: prompt,
-                optimizedPrompt: responseData.opt_prompt.response, 
-                originalResponse: markdownToPlainText(responseData.bot_response.response), // Convert Markdown to plain text
-                optimizedResponse: markdownToPlainText(responseData.opt_bot_response.response), // Convert Markdown to plain text
+                optimizedPrompt: responseData.opt_prompt.response,
+                originalResponse: markdownToPlainText(
+                    responseData.bot_response.response
+                ), // Convert Markdown to plain text
+                optimizedResponse: markdownToPlainText(
+                    responseData.opt_bot_response.response
+                ), // Convert Markdown to plain text
                 originalStats: {},
                 optimizedStats: {},
             };
 
+            const stats = await axios.post(
+                `${API_BASE_URL}/llm/metrics`,
+                JSON.stringify({
+                    query: prompt,
+                    answer: markdownToPlainText(response.data?.data.bot_response.response),
+                    opt_query: markdownToPlainText(response.data?.data.opt_prompt.response),
+                    opt_answer: markdownToPlainText(response.data?.data.opt_bot_response.response),
+                }),
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                    },
+                }
+            );
+            newResponse.originalStats = { ...stats.data.data };
+            newResponse.optimizedStats = { ...stats.data.data };
+            // const newResponse: PromptHistory = {
+            //     id: "1",
+            //     date: new Date().toISOString(),
+            //     originalPrompt: "dummy",
+            //     optimizedPrompt: "dummy",
+            //     originalResponse: "dummy",
+            //     optimizedResponse: "dummy",
+            //     originalStats: {
+            //         grammar: 6,
+            //         spell_check: 7,
+            //         sensitive_info: 9,
+            //         violence: 0,
+            //         bias_gender: 0,
+            //         self_harm: 0,
+            //         hate_unfairness: 1,
+            //         jailbreak: false,
+            //     },
+            //     optimizedStats: {
+            //         grammar: 10,
+            //         spell_check: 10,
+            //         sensitive_info: 8,
+            //         violence: 0,
+            //         bias_gender: 0,
+            //         self_harm: 0,
+            //         hate_unfairness: 1,
+            //         jailbreak: false,
+            //     },
+            // };
             // Update conversation history
             setConversationHistory((prevHistory) => [
                 ...prevHistory,
@@ -94,7 +142,6 @@ export default function Home() {
             setIsProcessing(false);
         }
     };
-
 
     return (
         <div className="min-h-screen">
