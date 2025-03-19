@@ -26,16 +26,21 @@ jobs:
       run: |
         az acr login --name ${{ secrets.ACR_NAME }}
 
+    - name: Set short git commit SHA
+      id: vars
+      run: |
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "::set-output name=short_sha::$calculatedSha"
+
     - name: Build and push Docker image for Frontend
       run: |
-        docker build --push --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} -t ${{ secrets.ACR_LOGIN_SERVER }}/pact-frontend:latest .
+        docker build --push --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} -t ${{ secrets.ACR_LOGIN_SERVER }}/pact-frontend:${{ steps.vars.outputs.short_sha }} .
 
-    - name: Deploy Container App
-      uses: azure/container-apps-deploy-action@v1
+    - name: Deploy container app
+      uses: azure/cli@v2
       with:
-        acrName: ${{ secrets.ACR_NAME }}
-        containerAppName: ${{ secrets.CA_FRONTEND_NAME }}
-        resourceGroup: ${{ secrets.RG_NAME }}
-        imageToDeploy: ${{ secrets.ACR_LOGIN_SERVER }}/pact-frontend:latest
-        buildArguments: |
-          "NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }}"
+        azcliversion: latest
+        inlineScript: |
+          az containerapp revision copy -n ${{ secrets.CA_FRONTEND_NAME }} \
+          -g ${{ secrets.RG_NAME }} --revision-suffix ${{ github.run_id }}-${{ github.run_attempt }} \
+          --image ${{ secrets.ACR_LOGIN_SERVER }}/pact-frontend:${{ steps.vars.outputs.short_sha }}
