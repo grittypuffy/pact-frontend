@@ -126,22 +126,28 @@ export default function Home() {
         {showResults && conversationHistory.length > 0 && (
           <div className="mt-8">
             {conversationHistory.map((promptData, index) => (
-              <div key={promptData.id} className="mb-12 animate-fadeIn border-b pb-8 last:border-b-0">
-                <h2 className="text-xl font-semibold mb-4">
-                  Prompt {index + 1} - {new Date(promptData.date).toLocaleString()}
-                </h2>
-                <PromptComparison 
-                  originalPrompt={promptData.originalPrompt} 
-                  optimizedPrompt={promptData.optimizedPrompt} 
-                />            
-                <StatisticsComparison 
-                  originalStats={promptData.originalStats} 
-                  optimizedStats={promptData.optimizedStats} 
-                />            
-                <PromptResponse 
-                  originalResponse={promptData.originalResponse} 
-                  optimizedResponse={promptData.optimizedResponse} 
-                />
+              <div 
+                key={promptData.id} 
+                className="mb-12 animate-fadeIn border-b pb-8 last:border-b-0"
+              >
+                {/* Center-align the content */}
+                <div className="flex flex-col items-center">
+                  <h2 className="text-xl font-semibold mb-4 text-center">
+                    Prompt {index + 1} - {new Date(promptData.date).toLocaleString()}
+                  </h2>
+                  <PromptComparison 
+                    originalPrompt={promptData.originalPrompt} 
+                    optimizedPrompt={promptData.optimizedPrompt} 
+                  />            
+                  <StatisticsComparison 
+                    originalStats={promptData.originalStats} 
+                    optimizedStats={promptData.optimizedStats} 
+                  />            
+                  <PromptResponse 
+                    originalResponse={promptData.originalResponse} 
+                    optimizedResponse={promptData.optimizedResponse} 
+                  />
+                </div>
               </div>
             ))}
           </div>
