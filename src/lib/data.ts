@@ -4,8 +4,8 @@ export interface PromptStatistics {
     sensitiveInfo: number;
     violence: number;
     genderBias: number;
-    racialBias: number;
-    unclear: number;
+    selfHarm: number;
+    Hate: number;
     jailbreaking: number;
   }
   
@@ -16,8 +16,8 @@ export interface PromptStatistics {
     optimizedPrompt: string;
     originalResponse: string;
     optimizedResponse: string;
-    originalStats: PromptStatistics;
-    optimizedStats: PromptStatistics;
+    originalStats: PromptStatistics |{};
+    optimizedStats: PromptStatistics | {};
   }
   
   export const sampleHistory: PromptHistory[] = [
