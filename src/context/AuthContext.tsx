@@ -42,7 +42,7 @@ const fetchAPI = async (url: string, options?: RequestInit) => {
             },
             mode: "cors",
         });
-        console.log("response", response);
+        // console.log("response", response);
         if (!response.ok) {
             // Try to parse error response
             try {

@@ -8,17 +8,11 @@ import PromptComparison from "@/components/prompt/PromptComparison";
 import StatisticsComparison from "@/components/prompt/StatisticsComparison";
 import PromptResponse from "@/components/prompt/PromptResponse";
 import { sampleHistory, PromptHistory } from "@/lib/data";
+import { useConversation } from "@/context/ConversationContext";
 
 // SearchParamsHandler component that uses useSearchParams
-function SearchParamsHandler({
-    setConversationHistory,
-    setShowResults,
-}: {
-    setConversationHistory: React.Dispatch<
-        React.SetStateAction<PromptHistory[]>
-    >;
-    setShowResults: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+function SearchParamsHandler() {
+    const { setConversationHistory, setShowResults } = useConversation();
     const searchParams = useSearchParams();
     const historyId = searchParams ? searchParams.get("id") : null;
 
@@ -44,10 +38,9 @@ function SearchParamsHandler({
 // Main component
 export default function Home() {
     const [isProcessing, setIsProcessing] = useState(false);
-    const [conversationHistory, setConversationHistory] = useState<
-        PromptHistory[]
-    >([]);
-    const [showResults, setShowResults] = useState(false);
+    const { conversationHistory, setConversationHistory, showResults, setShowResults } = useConversation();
+    const [prompt, setPrompt] = useState('');
+
     const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const handlePromptSubmit = async (prompt: string) => {
@@ -140,6 +133,7 @@ export default function Home() {
                 ...prevHistory,
                 newResponse,
             ]);
+            setPrompt("");
             setShowResults(true);
         } catch (error) {
             console.error("Error processing prompt:", error);
@@ -228,6 +222,8 @@ export default function Home() {
                 {/* Input section at the top */}
                 <div className="mt-8 space-y-4 animate-fadeIn">
                     <PromptInput
+                        prompt={prompt}
+                        setPrompt={setPrompt}
                         onSubmit={handlePromptSubmit}
                         isProcessing={isProcessing}
                     />

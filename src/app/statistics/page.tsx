@@ -46,7 +46,7 @@ export default function StatisticsPage() {
         delete optMetrics?.count;
         delete optMetrics?.metrics_type;
         setOptData(optMetrics);
-        console.log(data);
+        // console.log(data);
       } catch (err) {
         console.log(err);
       }

@@ -3,62 +3,41 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import LineChart from '@/components/charts/LineChart';
-import { userInsightsData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
+import { useConversation } from "@/context/ConversationContext";
 
-type InsightsData = {
-  totalPrompts: number;
-  grammarTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  spellCheckTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  sensitiveInfoTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  violenceTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  genderBiasTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  racialBiasTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  unclearTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  jailbreakingTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
+type PromptStatistics = {
+  grammar: number;
+  spellCheck: number;
+  sensitiveInfo: number;
+  violence: number;
+  genderBias: number;
+  Hate: number;
+  jailbreaking: number;
 };
 
 export default function InsightsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [insightsData, setInsightsData] = useState<InsightsData>(userInsightsData);
+  const { conversationHistory } = useConversation();
   const [totalPrompts, setTotalPrompts] = useState(0);
-
+  
   useEffect(() => {
-    console.log(setInsightsData);
-    // If not logged in, redirect to home
     if (!user) {
       router.push('/');
       return;
     }
-
-    // Here you would fetch the user's insights data from the backend
-    // Example API call:
-    // const fetchInsights = async () => {
-    //   const response = await fetch(`/api/insights?userId=${user.id}`);
-    //   const data = await response.json();
-    //   setInsightsData(data.insights);
-    //   setTotalPrompts(data.totalPrompts);
-    // };
-    // fetchInsights();
-
-    // For now, use static data
-    setTotalPrompts(userInsightsData.totalPrompts);
-  }, [user, router]);
-
-  if (!user) {
-    return null; // Will redirect in useEffect
-  }
+    setTotalPrompts(conversationHistory.length);
+  }, [user, router, conversationHistory]);
 
   const categories = [
-    { name: 'Grammar', id: 'grammarTrend' },
-    { name: 'Spell Check', id: 'spellCheckTrend' },
-    { name: 'Sensitive Information', id: 'sensitiveInfoTrend' },
-    { name: 'Violence / Harmful', id: 'violenceTrend' },
-    { name: 'Gender Bias', id: 'genderBiasTrend' },
-    { name: 'Racial Bias', id: 'racialBiasTrend' },
-    { name: 'Unclear', id: 'unclearTrend' },
-    { name: 'Jailbreak Prevention', id: 'jailbreakingTrend' }
+    { name: 'Grammar', key: 'grammar' },
+    { name: 'Spell Check', key: 'spellCheck' },
+    { name: 'Sensitive Information', key: 'sensitiveInfo' },
+    { name: 'Violence / Harmful', key: 'violence' },
+    { name: 'Gender Bias', key: 'genderBias' },
+    { name: 'Hate / Unfairness', key: 'Hate' },
+    { name: 'Jailbreak Prevention', key: 'jailbreaking' }
   ];
 
   return (
@@ -89,10 +68,15 @@ export default function InsightsPage() {
       
       <div className="grid md:grid-cols-2 gap-6">
         {categories.map((category) => {
-          const data = insightsData[category.id as keyof InsightsData];
+          const trendData = conversationHistory.map((history: { originalStats: PromptStatistics | object, optimizedStats: PromptStatistics | object }, index) => ({
+            promptNumber: index + 1,
+            userScore: (history.originalStats as PromptStatistics)[category.key as keyof PromptStatistics] || 0,
+            optimizedScore: (history.optimizedStats as PromptStatistics)[category.key as keyof PromptStatistics] || 0,
+          }));
+
           return (
             <div 
-              key={category.id} 
+              key={category.key} 
               className="rounded-lg shadow p-6 transition-all duration-300"
               style={{
                 background: 'rgb(var(--card-rgb), 0.1)',
@@ -101,21 +85,21 @@ export default function InsightsPage() {
               }}
             >
               <h3 className="text-lg font-semibold mb-4">{category.name}</h3>
-              {data && (
+              {trendData.length > 0 && (
                 <LineChart
                   title={`${category.name} Trend`}
                   data={{
-                    labels: Array.isArray(data) ? data.map(d => `Prompt ${d.promptNumber}`) : [],
+                    labels: trendData.map(d => `Prompt ${d.promptNumber}`),
                     datasets: [
                       {
                         label: 'User Prompts',
-                        data: Array.isArray(data) ? data.map(d => d.userScore) : [],
+                        data: trendData.map(d => d.userScore),
                         borderColor: 'blue',
                         backgroundColor: 'blue',
                       },
                       {
                         label: 'Optimized Prompts',
-                        data: Array.isArray(data) ? data.map(d => d.optimizedScore) : [],
+                        data: trendData.map(d => d.optimizedScore),
                         borderColor: '#10b981',
                         backgroundColor: 'rgb(16, 185, 129, 0.5)',
                       }
