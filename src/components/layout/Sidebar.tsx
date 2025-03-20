@@ -10,7 +10,7 @@ import HistoryItem from './HistoryItem';
 import { sampleHistory } from '@/lib/data';
 import NewChatButton from './NewChatButton';
 
-const HomeIcon = () => <div className="w-5 h-5">🏠</div>;
+// const HomeIcon = () => <div className="w-5 h-5">🏠</div>;
 const AboutIcon = () => <div className="w-5 h-5">ℹ️</div>;
 const InsightsIcon = () => <div className="w-5 h-5">📊</div>;
 const StatisticsIcon = () => <div className="w-5 h-5">📈</div>;
@@ -25,7 +25,7 @@ const Sidebar = () => {
   }, [])
 
   const tabLinks = [
-    { name: 'Home', path: '/', icon: <HomeIcon /> },
+    // { name: 'Home', path: '/', icon: <HomeIcon /> },
     { name: 'About', path: '/about', icon: <AboutIcon /> },
     { name: 'Insights', path: '/insights', icon: <InsightsIcon />, requiresAuth: true },
     { name: 'Statistics', path: '/statistics', icon: <StatisticsIcon /> },
