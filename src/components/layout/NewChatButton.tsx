@@ -2,8 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useConversation } from "@/context/ConversationContext";
 
 const NewChatButton = () => {
+  const { setMessage} = useConversation();
+
+
   return (
     <Link href="/" className="block w-full">
       <div
@@ -12,6 +16,9 @@ const NewChatButton = () => {
         style={{
           background: 'rgba(var(--primary-color))',
           color: "var(--button-text-color, #fff)",
+        }}
+        onClick={() => {setMessage([]) 
+          
         }}
       >
         <span className="mr-2">+</span>
