@@ -108,6 +108,34 @@ export default function Home() {
             );
             newResponse.originalStats = { ...stats.data.data.metrics };
             newResponse.optimizedStats = { ...stats.data.data.opt_metrics };
+            // const newResponse: PromptHistory = {
+            //     id: "1",
+            //     date: new Date().toISOString(),
+            //     originalPrompt: "dummy",
+            //     optimizedPrompt: "dummy",
+            //     originalResponse: "dummy",
+            //     optimizedResponse: "dummy",
+            //     originalStats: {
+            //         grammar: 6,
+            //         spell_check: 7,
+            //         sensitive_info: 9,
+            //         violence: 0,
+            //         bias_gender: 0,
+            //         self_harm: 0,
+            //         hate_unfairness: 1,
+            //         jailbreak: true,
+            //     },
+            //     optimizedStats: {
+            //         grammar: 10,
+            //         spell_check: 10,
+            //         sensitive_info: 8,
+            //         violence: 0,
+            //         bias_gender: 0,
+            //         self_harm: 0,
+            //         hate_unfairness: 1,
+            //         jailbreak: false,
+            //     },
+            // };            
             setConversationHistory((prevHistory) => [
                 ...prevHistory,
                 newResponse,

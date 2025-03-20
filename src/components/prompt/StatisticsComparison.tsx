@@ -43,8 +43,8 @@ const StatisticsComparison: React.FC<StatisticsComparisonProps> = ({
             if (value >= 60) return "bg-yellow-500";
             return "bg-green-500";
         } else if (key == "jailbreak") {
-            if (value == 0) return "bg-red-500";
-            return "bg-green-500";
+            // if (value == true) return "bg-red-500";
+            return "bg-red-500";
         } else if (value >= 80) return "bg-green-500";
         else if (value >= 60) return "bg-yellow-500";
         return "bg-red-500";
@@ -61,9 +61,18 @@ const StatisticsComparison: React.FC<StatisticsComparisonProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {metrics.map((metric) => {
                     const originalValue =
-                        ((original as any)[metric.key] || 0) * 10;
-                    const optimizedValue =
-                        ((optimized as any)[metric.key] || 0) * 10;
+                    metric.key === "jailbreak"
+                        ? (original as any)[metric.key] > 0
+                            ? 100
+                            : 0
+                        : ((original as any)[metric.key] || 0) * 10;
+                
+                const optimizedValue =
+                    metric.key === "jailbreak"
+                        ? (optimized as any)[metric.key] > 0
+                            ? 100
+                            : 0
+                        : ((optimized as any)[metric.key] || 0) * 10;                
 
                     return (
                         <div
