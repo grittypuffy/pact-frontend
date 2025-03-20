@@ -89,9 +89,15 @@ export default function Home() {
                 `${API_BASE_URL}/llm/metrics`,
                 JSON.stringify({
                     query: prompt,
-                    answer: markdownToPlainText(response.data?.data.bot_response.response),
-                    opt_query: markdownToPlainText(response.data?.data.opt_prompt.response),
-                    opt_answer: markdownToPlainText(response.data?.data.opt_bot_response.response),
+                    answer: markdownToPlainText(
+                        response.data?.data.bot_response.response
+                    ),
+                    opt_query: markdownToPlainText(
+                        response.data?.data.opt_prompt.response
+                    ),
+                    opt_answer: markdownToPlainText(
+                        response.data?.data.opt_bot_response.response
+                    ),
                 }),
                 {
                     headers: {
@@ -100,37 +106,8 @@ export default function Home() {
                     },
                 }
             );
-            newResponse.originalStats = { ...stats.data.data };
-            newResponse.optimizedStats = { ...stats.data.data };
-            // const newResponse: PromptHistory = {
-            //     id: "1",
-            //     date: new Date().toISOString(),
-            //     originalPrompt: "dummy",
-            //     optimizedPrompt: "dummy",
-            //     originalResponse: "dummy",
-            //     optimizedResponse: "dummy",
-            //     originalStats: {
-            //         grammar: 6,
-            //         spell_check: 7,
-            //         sensitive_info: 9,
-            //         violence: 0,
-            //         bias_gender: 0,
-            //         self_harm: 0,
-            //         hate_unfairness: 1,
-            //         jailbreak: false,
-            //     },
-            //     optimizedStats: {
-            //         grammar: 10,
-            //         spell_check: 10,
-            //         sensitive_info: 8,
-            //         violence: 0,
-            //         bias_gender: 0,
-            //         self_harm: 0,
-            //         hate_unfairness: 1,
-            //         jailbreak: false,
-            //     },
-            // };
-            // Update conversation history
+            newResponse.originalStats = { ...stats.data.data.metrics };
+            newResponse.optimizedStats = { ...stats.data.data.opt_metrics };
             setConversationHistory((prevHistory) => [
                 ...prevHistory,
                 newResponse,
@@ -199,9 +176,11 @@ export default function Home() {
                                         }
                                     />
                                     <StatisticsComparison
-                                        originalStats={promptData.originalStats}
+                                        originalStats={
+                                            promptData.originalStats as any
+                                        }
                                         optimizedStats={
-                                            promptData.optimizedStats
+                                            promptData.optimizedStats as any
                                         }
                                     />
                                     <PromptResponse
