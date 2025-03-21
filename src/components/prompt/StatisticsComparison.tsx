@@ -46,7 +46,7 @@ const StatisticsComparison: React.FC<StatisticsComparisonProps> = ({
             // if (value == true) return "bg-red-500";
             return "bg-red-500";
         } else if (value >= 80) return "bg-green-500";
-        else if (value >= 60) return "bg-yellow-500";
+        else if (value >= 50) return "bg-yellow-500";
         return "bg-red-500";
     };
 

@@ -106,13 +106,15 @@ export default function Home() {
       const responseData = response.data?.data;
       let redirect = false;
 
-      if (!historyId) {
+      if (!historyId && isAuthenticated) {
         try {
           const res = await axios.post(
             `${
               process.env.NEXT_PUBLIC_BACKEND_URL
-            }/history/add?user_msg=${encodeURIComponent(prompt)}`,
-            {},
+            }/history/add`,
+            {
+              user_msg: prompt
+            },
             {
               headers: {
                 "Content-Type": "application/json",
@@ -127,8 +129,6 @@ export default function Home() {
           redirect = true;
         } catch (error) {
           console.error("Error adding history:", error);
-
-          // If the error is from Axios, log additional details
           if (axios.isAxiosError(error)) {
             console.error("Response data:", error.response?.data);
             console.error("Status:", error.response?.status);
@@ -166,6 +166,7 @@ export default function Home() {
           hate_unfairness: 0,
           jailbreak: false,
         },
+        flagged: false
       };
 
       const stats = await axios.post(
@@ -182,14 +183,14 @@ export default function Home() {
             response.data?.data.opt_bot_response.response
           ),
           flagged: response.data?.data.flagged,
-          metrics: response.data?.data.metrics || null 
+          metrics: response.data?.data.metrics || null,
         }),
         {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       );
       newResponse.prompt_metrics = { ...stats.data.data.metrics };
@@ -227,6 +228,7 @@ export default function Home() {
 
       setPrompt("");
       setShowResults(true);
+      console.log(isAuthenticated);
       if (isAuthenticated) {
         const addChat = async () => {
           try {
@@ -240,6 +242,7 @@ export default function Home() {
                 opt_response: newResponse.opt_response,
                 prompt_metrics: newResponse.prompt_metrics,
                 opt_prompt_metrics: newResponse.opt_prompt_metrics,
+                flagged: responseData.flagged || false
               },
               {
                 headers: {
@@ -282,40 +285,42 @@ export default function Home() {
           }
         }
       }
-      setConversationHistory((prevHistory) => {
-        if (!prevHistory) return prevHistory;
-        const existingConversation = prevHistory.data.find(
-          (conversation) => conversation.history._id === historyid
-        );
+      if (isAuthenticated) {
+        setConversationHistory((prevHistory) => {
+          if (!prevHistory) return prevHistory;
+          const existingConversation = prevHistory.data.find(
+            (conversation) => conversation.history._id === historyid
+          );
 
-        if (existingConversation) {
-          return {
-            ...prevHistory,
-            data: prevHistory.data.map((conversation) =>
-              conversation.history._id === historyid
-                ? {
-                    ...conversation,
-                    chats: [...conversation.chats, newResponse],
-                  }
-                : conversation
-            ),
-          };
-        } else {
-          const newConversation: ConversationHistory = {
-            history: {
-              _id: historyId || "",
-              user_id: "",
-              title: title,
-            },
-            chats: [newResponse], // Add newResponse as the first chat entry
-          };
+          if (existingConversation) {
+            return {
+              ...prevHistory,
+              data: prevHistory.data.map((conversation) =>
+                conversation.history._id === historyid
+                  ? {
+                      ...conversation,
+                      chats: [...conversation.chats, newResponse],
+                    }
+                  : conversation
+              ),
+            };
+          } else {
+            const newConversation: ConversationHistory = {
+              history: {
+                _id: historyId || "",
+                user_id: "",
+                title: title,
+              },
+              chats: [newResponse], // Add newResponse as the first chat entry
+            };
 
-          return {
-            ...prevHistory,
-            data: [...prevHistory.data, newConversation], // Append the new conversation
-          };
-        }
-      });
+            return {
+              ...prevHistory,
+              data: [...prevHistory.data, newConversation], // Append the new conversation
+            };
+          }
+        });
+      }
       if (redirect) {
         window.location.href = `/?id=${historyId}`;
       }
