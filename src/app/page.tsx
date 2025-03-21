@@ -32,32 +32,26 @@ function SearchParamsHandler({
   const historyId = searchParams ? searchParams.get("id") : null;
 
   useEffect(() => {
-    if (historyId) {
-      setHistoryId(historyId);
-      // Find the conversation matching the historyId
+    if (!historyId || !conversationHistory?.data) {
+      // Reset state when historyId is not available
+      setMessage(undefined);
+      setShowResults(false);
+      return;
+    }
 
-      const foundConversation = conversationHistory?.data?.find(
-        (item) => item.history._id === historyId
-      );
+    // Find the conversation matching the historyId
+    const foundConversation = conversationHistory.data.find(
+      (item) => item.history._id === historyId
+    );
 
-      if (foundConversation) {
-        // Set the selected message
-        setMessage(foundConversation.chats);
-        // Show results
-        setShowResults(true);
-      }
+    if (foundConversation) {
+      setMessage(foundConversation.chats);
+      setShowResults(true);
     } else {
-      // Reset when no historyId is found
       setMessage(undefined);
       setShowResults(false);
     }
-  }, [
-    historyId,
-    conversationHistory,
-    setMessage,
-    setConversationHistory,
-    setShowResults,
-  ]);
+  }, [historyId, conversationHistory]);
 
   return null;
 }
@@ -105,15 +99,12 @@ export default function Home() {
       let historyId = historyid;
       const responseData = response.data?.data;
       let redirect = false;
-
-      if (!historyId && isAuthenticated) {
+      if (!historyId) {
         try {
           const res = await axios.post(
-            `${
-              process.env.NEXT_PUBLIC_BACKEND_URL
-            }/history/add`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/history/add`,
             {
-              user_msg: prompt
+              user_msg: prompt,
             },
             {
               headers: {
@@ -228,61 +219,58 @@ export default function Home() {
 
       setPrompt("");
       setShowResults(true);
-      console.log(isAuthenticated);
-      if (isAuthenticated) {
-        const addChat = async () => {
-          try {
-            const response = await axios.post(
-              `${API_BASE_URL}/chat/add`,
-              {
-                history_id: historyId,
-                prompt: newResponse.prompt,
-                response: newResponse.response,
-                opt_prompt: newResponse.opt_prompt,
-                opt_response: newResponse.opt_response,
-                prompt_metrics: newResponse.prompt_metrics,
-                opt_prompt_metrics: newResponse.opt_prompt_metrics,
-                flagged: responseData.flagged || false
-              },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                withCredentials: true,
-              }
-            );
-          } catch (error) {
-            if (axios.isAxiosError(error)) {
-              if (error.response) {
-                console.error("API Error:", error.response.data); // Log server response
-                console.error("Status Code:", error.response.status);
-              } else {
-                console.error("Request Error:", error.message);
-              }
-            } else {
-              console.error("Unexpected Error:", error);
-            }
-          }
-        };
-        addChat();
+      const addChat = async () => {
         try {
-          const statsResponse = await axios.post(
-            `${API_BASE_URL}/statistics/add`,
+          const chatResponse = await axios.post(
+            `${API_BASE_URL}/chat/add`,
             {
-              metrics: newResponse.prompt_metrics,
-              opt_metrics: newResponse.opt_prompt_metrics,
+              history_id: historyId,
+              prompt: newResponse.prompt,
+              response: newResponse.response,
+              opt_prompt: newResponse.opt_prompt,
+              opt_response: newResponse.opt_response,
+              prompt_metrics: newResponse.prompt_metrics,
+              opt_prompt_metrics: newResponse.opt_prompt_metrics,
               flagged: response.data?.data.flagged,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              withCredentials: true,
             }
           );
         } catch (error) {
           if (axios.isAxiosError(error)) {
-            console.error(
-              "Error posting statistics:",
-              error.response ? error.response.data : error.message
-            );
+            if (error.response) {
+              console.error("API Error:", error.response.data); // Log server response
+              console.error("Status Code:", error.response.status);
+            } else {
+              console.error("Request Error:", error.message);
+            }
           } else {
-            console.error("Unexpected error:", error);
+            console.error("Unexpected Error:", error);
           }
+        }
+      };
+      await addChat();
+      try {
+        const statsResponse = await axios.post(
+          `${API_BASE_URL}/statistics/add`,
+          {
+            metrics: newResponse.prompt_metrics,
+            opt_metrics: newResponse.opt_prompt_metrics,
+            flagged: response.data?.data.flagged,
+          }
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error(
+            "Error posting statistics:",
+            error.response ? error.response.data : error.message
+          );
+        } else {
+          console.error("Unexpected error:", error);
         }
       }
       if (isAuthenticated) {
@@ -298,9 +286,9 @@ export default function Home() {
               data: prevHistory.data.map((conversation) =>
                 conversation.history._id === historyid
                   ? {
-                      ...conversation,
-                      chats: [...conversation.chats, newResponse],
-                    }
+                    ...conversation,
+                    chats: [...conversation.chats, newResponse],
+                  }
                   : conversation
               ),
             };
@@ -321,9 +309,9 @@ export default function Home() {
           }
         });
       }
-      if (redirect) {
-        window.location.href = `/?id=${historyId}`;
-      }
+      // if (redirect) {
+      //   window.location.href = `/?id=${historyId}`;
+      // }
     } catch (error) {
       console.error("Error processing prompt:", error);
     } finally {
