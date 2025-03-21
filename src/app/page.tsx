@@ -99,8 +99,7 @@ export default function Home() {
       let historyId = historyid;
       const responseData = response.data?.data;
       let redirect = false;
-      console.log("what the hell", historyId, isAuthenticated);
-      if (!historyId && isAuthenticated) {
+      if (!historyId) {
         try {
           const res = await axios.post(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/history/add`,
@@ -220,44 +219,41 @@ export default function Home() {
 
       setPrompt("");
       setShowResults(true);
-      console.log(isAuthenticated);
-      if (isAuthenticated) {
-        const addChat = async () => {
-          try {
-            const chatResponse = await axios.post(
-              `${API_BASE_URL}/chat/add`,
-              {
-                history_id: historyId,
-                prompt: newResponse.prompt,
-                response: newResponse.response,
-                opt_prompt: newResponse.opt_prompt,
-                opt_response: newResponse.opt_response,
-                prompt_metrics: newResponse.prompt_metrics,
-                opt_prompt_metrics: newResponse.opt_prompt_metrics,
-                flagged: response.data?.data.flagged,
+      const addChat = async () => {
+        try {
+          const chatResponse = await axios.post(
+            `${API_BASE_URL}/chat/add`,
+            {
+              history_id: historyId,
+              prompt: newResponse.prompt,
+              response: newResponse.response,
+              opt_prompt: newResponse.opt_prompt,
+              opt_response: newResponse.opt_response,
+              prompt_metrics: newResponse.prompt_metrics,
+              opt_prompt_metrics: newResponse.opt_prompt_metrics,
+              flagged: response.data?.data.flagged,
+            },
+            {
+              headers: {
+                "Content-Type": "application/json",
               },
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                withCredentials: true,
-              }
-            );
-          } catch (error) {
-            if (axios.isAxiosError(error)) {
-              if (error.response) {
-                console.error("API Error:", error.response.data); // Log server response
-                console.error("Status Code:", error.response.status);
-              } else {
-                console.error("Request Error:", error.message);
-              }
-            } else {
-              console.error("Unexpected Error:", error);
+              withCredentials: true,
             }
+          );
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            if (error.response) {
+              console.error("API Error:", error.response.data); // Log server response
+              console.error("Status Code:", error.response.status);
+            } else {
+              console.error("Request Error:", error.message);
+            }
+          } else {
+            console.error("Unexpected Error:", error);
           }
-        };
-        await addChat();
-      }
+        }
+      };
+      await addChat();
       try {
         const statsResponse = await axios.post(
           `${API_BASE_URL}/statistics/add`,
@@ -290,9 +286,9 @@ export default function Home() {
               data: prevHistory.data.map((conversation) =>
                 conversation.history._id === historyid
                   ? {
-                      ...conversation,
-                      chats: [...conversation.chats, newResponse],
-                    }
+                    ...conversation,
+                    chats: [...conversation.chats, newResponse],
+                  }
                   : conversation
               ),
             };
