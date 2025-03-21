@@ -9,6 +9,7 @@ interface PromptInputProps {
   isProcessing: boolean;
   selectedLanguage?: string;
   onLanguageChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleVoiceSubmit :(voice: Blob) => void;
 }
 
 const PromptInput: React.FC<PromptInputProps> = ({ 
@@ -17,7 +18,8 @@ const PromptInput: React.FC<PromptInputProps> = ({
   onSubmit, 
   isProcessing,
   selectedLanguage = 'English',
-  onLanguageChange
+  onLanguageChange,
+  handleVoiceSubmit
 }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState('');
@@ -72,7 +74,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   // New function to handle sending audio as a response
   const sendAudioResponse = async (audioBlob: Blob) => {
     //call the api here
-    
+    handleVoiceSubmit(audioBlob);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
