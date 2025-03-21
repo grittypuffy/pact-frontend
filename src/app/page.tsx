@@ -182,12 +182,14 @@ export default function Home() {
             response.data?.data.opt_bot_response.response
           ),
           flagged: response.data?.data.flagged,
+          metrics: response.data?.data.metrics || null 
         }),
         {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
+          withCredentials: true
         }
       );
       newResponse.prompt_metrics = { ...stats.data.data.metrics };
