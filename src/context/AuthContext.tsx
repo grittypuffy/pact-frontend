@@ -131,12 +131,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setIsAuthenticated(true);
             localStorage.setItem("user", JSON.stringify(userInfo));
         } catch (error) {
+            setError("Invalid username or password. Please try again.");
             console.error("Login error:", error);
-            setError(
-                error instanceof Error
-                    ? error.message
-                    : "Login failed. Please check your credentials."
-            );
             throw error;
         } finally {
             setIsLoading(false);
