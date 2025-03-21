@@ -1,13 +1,13 @@
-export interface PromptStatistics {
-    grammar: number;
-    spellCheck: number;
-    sensitiveInfo: number;
-    violence: number;
-    genderBias: number;
-    racialBias: number;
-    unclear: number;
-    jailbreaking: number;
-  }
+// export interface PromptStatistics {
+//     grammar: number;
+//     spellCheck: number;
+//     sensitiveInfo: number;
+//     violence: number;
+//     genderBias: number;
+//     selfHarm: number;
+//     Hate: number;
+//     jailbreaking: number;
+//   }
   
   export interface PromptHistory {
     id: string;
@@ -16,9 +16,45 @@ export interface PromptStatistics {
     optimizedPrompt: string;
     originalResponse: string;
     optimizedResponse: string;
-    originalStats: PromptStatistics;
-    optimizedStats: PromptStatistics;
+    originalStats: PromptStatistics |{};
+    optimizedStats: PromptStatistics | {};
   }
+  
+  export interface ConversationResponse {
+  status: string;
+  data: ConversationHistory[];
+}
+
+export interface ConversationHistory {
+  history: {
+    _id: string;
+    user_id: string;
+    title: string;
+  };
+  chats: Chat[];
+}
+
+export interface Chat {
+  _id: string;
+  history_id: string;
+  prompt: string;
+  opt_prompt: string;
+  response: string;
+  opt_response: string;
+  prompt_metrics: PromptStatistics;
+  opt_prompt_metrics: PromptStatistics;
+}
+
+export interface PromptStatistics {
+  grammar: number;
+  spell_check: number;
+  sensitive_info: number;
+  violence: number;
+  bias_gender: number;
+  self_harm: number;
+  hate_unfairness: number;
+  jailbreak: boolean;
+}
   
   export const sampleHistory: PromptHistory[] = [
     {

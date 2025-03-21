@@ -1,129 +1,138 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import LineChart from '@/components/charts/LineChart';
-import { userInsightsData } from '@/lib/data';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
+import LineChart from "@/components/charts/LineChart";
+import { useRouter } from "next/navigation";
+import { useConversation } from "@/context/ConversationContext";
 
-type InsightsData = {
-  totalPrompts: number;
-  grammarTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  spellCheckTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  sensitiveInfoTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  violenceTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  genderBiasTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  racialBiasTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  unclearTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
-  jailbreakingTrend: { promptNumber: number; userScore: number; optimizedScore: number; }[];
+type PromptStatistics = {
+  grammar: number;
+  spell_check: number;
+  sensitive_info: number;
+  violence: number;
+  bias_gender: number;
+  hate_unfairness: number;
+  jailbreak: boolean; // Fixed: Changed to boolean to match data type
 };
 
 export default function InsightsPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const [insightsData, setInsightsData] = useState<InsightsData>(userInsightsData);
+  const { conversationHistory } = useConversation();
   const [totalPrompts, setTotalPrompts] = useState(0);
 
   useEffect(() => {
-    console.log(setInsightsData);
-    // If not logged in, redirect to home
     if (!user) {
-      router.push('/');
+      router.push("/");
       return;
     }
 
-    // Here you would fetch the user's insights data from the backend
-    // Example API call:
-    // const fetchInsights = async () => {
-    //   const response = await fetch(`/api/insights?userId=${user.id}`);
-    //   const data = await response.json();
-    //   setInsightsData(data.insights);
-    //   setTotalPrompts(data.totalPrompts);
-    // };
-    // fetchInsights();
-
-    // For now, use static data
-    setTotalPrompts(userInsightsData.totalPrompts);
-  }, [user, router]);
-
-  if (!user) {
-    return null; // Will redirect in useEffect
-  }
+    if (conversationHistory?.data) {
+      setTotalPrompts(conversationHistory.data.reduce((sum, convo) => sum + convo.chats.length, 0));
+    }
+  }, [user, router, conversationHistory]);
 
   const categories = [
-    { name: 'Grammar', id: 'grammarTrend' },
-    { name: 'Spell Check', id: 'spellCheckTrend' },
-    { name: 'Sensitive Information', id: 'sensitiveInfoTrend' },
-    { name: 'Violence / Harmful', id: 'violenceTrend' },
-    { name: 'Gender Bias', id: 'genderBiasTrend' },
-    { name: 'Racial Bias', id: 'racialBiasTrend' },
-    { name: 'Unclear', id: 'unclearTrend' },
-    { name: 'Jailbreak Prevention', id: 'jailbreakingTrend' }
+    { name: "Grammar", key: "grammar" },
+    { name: "Spell Check", key: "spell_check" },
+    { name: "Sensitive Information", key: "sensitive_info" },
+    { name: "Violence / Harmful", key: "violence" },
+    { name: "Gender Bias", key: "bias_gender" },
+    { name: "Hate / Unfairness", key: "hate_unfairness" },
+    { name: "Jailbreak Prevention", key: "jailbreak" },
   ];
+
+  // Memoize trend data for optimization
+  const trendDataMap = useMemo(() => {
+    if (!conversationHistory?.data) return {};
+    
+    return categories.reduce((acc, category) => {
+      acc[category.key] = conversationHistory.data.flatMap((history, index) =>
+        history.chats.map((chat, chatIndex) => ({
+          promptNumber: index * history.chats.length + chatIndex + 1,
+          userScore:
+            category.key === "jailbreak"
+              ? Number((chat.prompt_metrics as PromptStatistics)?.jailbreak) // Convert boolean to number
+              : Number((chat.prompt_metrics as PromptStatistics)?.[category.key as keyof PromptStatistics] || 0),
+          optimizedScore:
+            category.key === "jailbreak"
+              ? Number((chat.opt_prompt_metrics as PromptStatistics)?.jailbreak) // Convert boolean to number
+              : Number((chat.opt_prompt_metrics as PromptStatistics)?.[category.key as keyof PromptStatistics] || 0),
+        }))
+      );
+      return acc;
+    }, {} as Record<string, { promptNumber: number; userScore: number; optimizedScore: number }[]>);
+  }, [conversationHistory]);
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 
+      <h1
         className="text-3xl font-bold mb-6"
-        style={{ color: 'rgb(var(--foreground-rgb))' }}
+        style={{ color: "rgb(var(--foreground-rgb))" }}
       >
         Your Insights
       </h1>
-      
-      <div 
+
+      {/* Total Prompts */}
+      <div
         className="rounded-lg shadow p-6 mb-8 transition-all duration-300"
         style={{
-          background: 'rgb(var(--card-rgb), 0.1)',
-          color: 'rgb(var(--foreground-rgb))',
-          borderColor: 'rgb(var(--foreground-rgb), 0.1)',
+          background: "rgb(var(--card-rgb), 0.1)",
+          color: "rgb(var(--foreground-rgb))",
+          borderColor: "rgb(var(--foreground-rgb), 0.1)",
         }}
       >
         <h2 className="text-xl font-semibold mb-2">Total Prompts</h2>
-        <p 
+        <p
           className="text-4xl font-bold"
-          style={{ color: 'rgb(var(--primary-color))' }}
+          style={{ color: "rgb(var(--primary-color))" }}
         >
           {totalPrompts}
         </p>
       </div>
-      
+
+      {/* Charts */}
       <div className="grid md:grid-cols-2 gap-6">
         {categories.map((category) => {
-          const data = insightsData[category.id as keyof InsightsData];
+          const trendData = trendDataMap[category.key] || [];
+
           return (
-            <div 
-              key={category.id} 
+            <div
+              key={category.key}
               className="rounded-lg shadow p-6 transition-all duration-300"
               style={{
-                background: 'rgb(var(--card-rgb), 0.1)',
-                color: 'rgb(var(--foreground-rgb))',
-                borderColor: 'rgb(var(--foreground-rgb), 0.1)',
+                background: "rgb(var(--card-rgb), 0.1)",
+                color: "rgb(var(--foreground-rgb))",
+                borderColor: "rgb(var(--foreground-rgb), 0.1)",
               }}
             >
               <h3 className="text-lg font-semibold mb-4">{category.name}</h3>
-              {data && (
+              {trendData.length > 0 ? (
                 <LineChart
                   title={`${category.name} Trend`}
                   data={{
-                    labels: Array.isArray(data) ? data.map(d => `Prompt ${d.promptNumber}`) : [],
+                    labels: trendData.map((d) => `Prompt ${d.promptNumber}`),
                     datasets: [
                       {
-                        label: 'User Prompts',
-                        data: Array.isArray(data) ? data.map(d => d.userScore) : [],
-                        borderColor: 'blue',
-                        backgroundColor: 'blue',
+                        label: "User Prompts",
+                        data: trendData.map((d) => d.userScore),
+                        borderColor: "blue",
+                        backgroundColor: "rgba(0, 0, 255, 0.5)",
                       },
                       {
-                        label: 'Optimized Prompts',
-                        data: Array.isArray(data) ? data.map(d => d.optimizedScore) : [],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgb(16, 185, 129, 0.5)',
-                      }
-                    ]
+                        label: "Optimized Prompts",
+                        data: trendData.map((d) => d.optimizedScore),
+                        borderColor: "#10b981",
+                        backgroundColor: "rgba(16, 185, 129, 0.5)",
+                      },
+                    ],
                   }}
                   yAxisMax={100}
                   height={250}
                 />
+              ) : (
+                <p className="text-gray-500">No data available</p>
               )}
             </div>
           );

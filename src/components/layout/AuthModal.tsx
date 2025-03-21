@@ -1,35 +1,44 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useConversation } from "@/context/ConversationContext";
+import axios from "axios";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialView?: 'login' | 'signup';
+  initialView?: "login" | "signup";
 }
 
-const AuthModal: React.FC<AuthModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  initialView = 'login' 
+const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  initialView = "login",
 }) => {
-  const { login, signup, isLoading, error, checkUsernameAvailability } = useAuth();
-  const [view, setView] = useState<'login' | 'signup'>(initialView);
-  
+  const { login, signup, isLoading, error, checkUsernameAvailability } =
+    useAuth();
+  const [view, setView] = useState<"login" | "signup">(initialView);
+  const {
+    conversationHistory,
+    setConversationHistory,
+    showResults,
+    setShowResults,
+  } = useConversation();
   // Login form state
-  const [loginUsername, setLoginUsername] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+
   // Signup form state
-  const [signupFullName, setSignupFullName] = useState('');
-  const [signupUsername, setSignupUsername] = useState('');
-  const [signupEmail, setSignupEmail] = useState('');
-  const [signupPassword, setSignupPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
+  const [signupFullName, setSignupFullName] = useState("");
+  const [signupUsername, setSignupUsername] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   // Form validation
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+    null
+  );
 
   // Reset state when modal opens
   useEffect(() => {
@@ -42,13 +51,13 @@ const AuthModal: React.FC<AuthModalProps> = ({
   }, [isOpen, initialView]);
 
   const resetForm = () => {
-    setLoginUsername('');
-    setLoginPassword('');
-    setSignupFullName('');
-    setSignupUsername('');
-    setSignupEmail('');
-    setSignupPassword('');
-    setConfirmPassword('');
+    setLoginUsername("");
+    setLoginPassword("");
+    setSignupFullName("");
+    setSignupUsername("");
+    setSignupEmail("");
+    setSignupPassword("");
+    setConfirmPassword("");
   };
 
   const handleClose = () => {
@@ -59,69 +68,72 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   const validateLoginForm = () => {
     const errors: Record<string, string> = {};
-    
+
     if (!loginUsername.trim()) {
-      errors.loginUsername = 'Username is required';
+      errors.loginUsername = "Username is required";
     }
-    
+
     if (!loginPassword) {
-      errors.loginPassword = 'Password is required';
+      errors.loginPassword = "Password is required";
     }
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const validateSignupForm = () => {
     const errors: Record<string, string> = {};
-    
+
     if (!signupFullName.trim()) {
-      errors.signupFullName = 'Full name is required';
+      errors.signupFullName = "Full name is required";
     }
-    
+
     if (!signupUsername.trim()) {
-      errors.signupUsername = 'Username is required';
+      errors.signupUsername = "Username is required";
     } else if (usernameAvailable === false) {
-      errors.signupUsername = 'Username is already taken';
+      errors.signupUsername = "Username is already taken";
     }
-    
+
     if (!signupEmail.trim()) {
-      errors.signupEmail = 'Email is required';
+      errors.signupEmail = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(signupEmail)) {
-      errors.signupEmail = 'Please enter a valid email';
+      errors.signupEmail = "Please enter a valid email";
     }
-    
+
     if (!signupPassword) {
-      errors.signupPassword = 'Password is required';
+      errors.signupPassword = "Password is required";
     } else if (signupPassword.length < 6) {
-      errors.signupPassword = 'Password must be at least 6 characters';
+      errors.signupPassword = "Password must be at least 6 characters";
     }
-    
+
     if (signupPassword !== confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = "Passwords do not match";
     }
-    
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const checkUsername = async () => {
     if (!signupUsername.trim()) return;
-    
+
     setIsCheckingUsername(true);
     try {
       const isAvailable = await checkUsernameAvailability(signupUsername);
       setUsernameAvailable(isAvailable);
-      
+
       // Update form errors based on availability
       if (!isAvailable) {
-        setFormErrors(prev => ({ ...prev, signupUsername: 'Username is already taken' }));
+        setFormErrors((prev) => ({
+          ...prev,
+          signupUsername: "Username is already taken",
+        }));
       } else {
         const { signupUsername: _, ...rest } = formErrors;
         setFormErrors(rest);
       }
     } catch (error) {
-      console.error('Error checking username:', error);
+      console.error("Error checking username:", error);
       // Don't block signup if availability check fails
       setUsernameAvailable(true);
     } finally {
@@ -131,23 +143,23 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateLoginForm()) return;
-    
+
     try {
       await login(loginUsername, loginPassword);
+      
       handleClose();
     } catch (error) {
-      // Error is already handled in the context
       console.error("Login handling error:", error);
     }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateSignupForm()) return;
-    
+
     try {
       await signup(signupUsername, signupFullName, signupEmail, signupPassword);
       handleClose();
@@ -160,24 +172,35 @@ const AuthModal: React.FC<AuthModalProps> = ({
   // Input style helpers
   const getInputClassName = (fieldName: string) => {
     return `w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 transition-colors 
-      ${formErrors[fieldName] ? 'border-red-500' : 'border-gray-300'}`;
+      ${formErrors[fieldName] ? "border-red-500" : "border-gray-300"}`;
   };
 
   if (!isOpen) return null;
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-md z-40 flex items-center justify-center" onClick={handleClose}>
-        <div className="w-full max-w-md p-6 rounded-lg shadow-xl z-50"
+      <div
+        className="fixed inset-0 backdrop-blur-lg bg-opacity-30 z-40 flex items-center justify-center border-white"
+        onClick={handleClose}
+      >
+        <div
+          className="w-full max-w-md p-6 rounded-lg shadow-xl z-50"
           style={{
             backgroundColor: "rgb(var(--background-rgb))",
             color: "rgb(var(--foreground-rgb))",
+            border: "1px solid rgba(var(--foreground-rgb), 0.5)",
           }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">{view === 'login' ? 'Log In' : 'Sign Up'}</h2>
-            <button onClick={handleClose} className="text-2xl" style={{ color: "rgba(var(--foreground-rgb), 0.7)" }}>
+            <h2 className="text-xl font-bold">
+              {view === "login" ? "Log In" : "Sign Up"}
+            </h2>
+            <button
+              onClick={handleClose}
+              className="text-2xl"
+              style={{ color: "rgba(var(--foreground-rgb), 0.7)" }}
+            >
               &times;
             </button>
           </div>
@@ -188,50 +211,58 @@ const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {view === 'login' ? (
+          {view === "login" ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Username</label>
-                <input 
-                  type="text" 
-                  value={loginUsername} 
+                <label className="block text-sm font-medium mb-1">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={loginUsername}
                   onChange={(e) => setLoginUsername(e.target.value)}
-                  className={getInputClassName('loginUsername')}
+                  className={getInputClassName("loginUsername")}
                   required
                 />
                 {formErrors.loginUsername && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.loginUsername}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.loginUsername}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Password</label>
-                <input 
-                  type="password" 
-                  value={loginPassword} 
+                <label className="block text-sm font-medium mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  className={getInputClassName('loginPassword')}
+                  className={getInputClassName("loginPassword")}
                   required
                 />
                 {formErrors.loginPassword && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.loginPassword}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.loginPassword}
+                  </p>
                 )}
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center"
                 style={{
-                  background: 'rgba(var(--primary-color))',
+                  background: "rgba(var(--primary-color))",
                   color: "var(--button-text-color, #fff)",
                 }}
                 disabled={isLoading}
               >
-                {isLoading ? 'Logging in...' : 'Log In'}
+                {isLoading ? "Logging in..." : "Log In"}
               </button>
               <div className="text-center mt-2">
-                <button 
-                  type="button" 
-                  onClick={() => setView('signup')} 
-                  className="text-sm" 
+                <button
+                  type="button"
+                  onClick={() => setView("signup")}
+                  className="text-sm"
                   style={{ color: "rgb(var(--primary-color))" }}
                   disabled={isLoading}
                 >
@@ -242,98 +273,120 @@ const AuthModal: React.FC<AuthModalProps> = ({
           ) : (
             <form onSubmit={handleSignup} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Full Name</label>
-                <input 
-                  type="text" 
-                  value={signupFullName} 
+                <label className="block text-sm font-medium mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={signupFullName}
                   onChange={(e) => setSignupFullName(e.target.value)}
-                  className={getInputClassName('signupFullName')}
+                  className={getInputClassName("signupFullName")}
                   required
                 />
                 {formErrors.signupFullName && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.signupFullName}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.signupFullName}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Username</label>
+                <label className="block text-sm font-medium mb-1">
+                  Username
+                </label>
                 <div className="relative">
-                  <input 
-                    type="text" 
-                    value={signupUsername} 
+                  <input
+                    type="text"
+                    value={signupUsername}
                     onChange={(e) => {
                       setSignupUsername(e.target.value);
                       setUsernameAvailable(null);
                     }}
                     onBlur={checkUsername}
-                    className={getInputClassName('signupUsername')}
+                    className={getInputClassName("signupUsername")}
                     required
                   />
                   {isCheckingUsername && (
-                    <span className="absolute right-3 top-2 text-sm text-gray-500">Checking...</span>
+                    <span className="absolute right-3 top-2 text-sm text-gray-500">
+                      Checking...
+                    </span>
                   )}
                   {!isCheckingUsername && usernameAvailable === true && (
-                    <span className="absolute right-3 top-2 text-sm text-green-500">Available</span>
+                    <span className="absolute right-3 top-2 text-sm text-green-500">
+                      Available
+                    </span>
                   )}
                 </div>
                 {formErrors.signupUsername && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.signupUsername}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.signupUsername}
+                  </p>
                 )}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
-                <input 
-                  type="email" 
-                  value={signupEmail} 
+                <input
+                  type="email"
+                  value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
-                  className={getInputClassName('signupEmail')}
+                  className={getInputClassName("signupEmail")}
                   required
                 />
                 {formErrors.signupEmail && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.signupEmail}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.signupEmail}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Password</label>
-                <input 
-                  type="password" 
-                  value={signupPassword} 
+                <label className="block text-sm font-medium mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
-                  className={getInputClassName('signupPassword')}
+                  className={getInputClassName("signupPassword")}
                   required
                 />
                 {formErrors.signupPassword && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.signupPassword}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.signupPassword}
+                  </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Confirm Password</label>
-                <input 
-                  type="password" 
-                  value={confirmPassword} 
+                <label className="block text-sm font-medium mb-1">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={getInputClassName('confirmPassword')}
+                  className={getInputClassName("confirmPassword")}
                   required
                 />
                 {formErrors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">{formErrors.confirmPassword}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {formErrors.confirmPassword}
+                  </p>
                 )}
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="w-full px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center"
                 style={{
-                  background: 'rgba(var(--primary-color))',
+                  background: "rgba(var(--primary-color))",
                   color: "var(--button-text-color, #fff)",
                 }}
                 disabled={isLoading}
               >
-                {isLoading ? 'Creating Account...' : 'Sign Up'}
+                {isLoading ? "Creating Account..." : "Sign Up"}
               </button>
               <div className="text-center mt-2">
-                <button 
-                  type="button" 
-                  onClick={() => setView('login')} 
-                  className="text-sm" 
+                <button
+                  type="button"
+                  onClick={() => setView("login")}
+                  className="text-sm"
                   style={{ color: "rgb(var(--primary-color))" }}
                   disabled={isLoading}
                 >

@@ -3,12 +3,14 @@
 import React, { useState } from 'react';
 
 interface PromptInputProps {
+  prompt: string;
+  setPrompt: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: (prompt: string) => void;
   isProcessing: boolean;
 }
 
-const PromptInput: React.FC<PromptInputProps> = ({ onSubmit, isProcessing }) => {
-  const [prompt, setPrompt] = useState('');
+const PromptInput: React.FC<PromptInputProps> = ({ prompt,setPrompt, onSubmit, isProcessing }) => {
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
