@@ -121,8 +121,6 @@ export default function Home() {
           redirect = true;
         } catch (error) {
           console.error("Error adding history:", error);
-
-          // If the error is from Axios, log additional details
           if (axios.isAxiosError(error)) {
             console.error("Response data:", error.response?.data);
             console.error("Status:", error.response?.status);
@@ -160,6 +158,7 @@ export default function Home() {
           hate_unfairness: 0,
           jailbreak: false,
         },
+        flagged: false
       };
 
       const stats = await axios.post(
@@ -221,6 +220,7 @@ export default function Home() {
 
       setPrompt("");
       setShowResults(true);
+      console.log(isAuthenticated);
       if (isAuthenticated) {
         const addChat = async () => {
           try {
