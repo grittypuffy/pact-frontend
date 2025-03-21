@@ -49,7 +49,7 @@ const Sidebar = () => {
     setShowResults,
   } = useConversation();
   const fetchData = async () => {
-    if (isAuthenticated) {
+    if (!isAuthenticated) {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/get`,
         { withCredentials: true }
@@ -58,6 +58,7 @@ const Sidebar = () => {
       setShowResults(true);
     }
     if (isAuthenticated && conversationHistory && conversationHistory.data) {
+
       const mappedHistory: HistoryDisplay[] = conversationHistory.data.map(
         (item) => ({
           historyId: item.history._id,
@@ -69,9 +70,9 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
-    console.log("what the hell")
+   
     fetchData();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, conversationHistory]);
 
   // useEffect(() => {
   //   if (showResults) {

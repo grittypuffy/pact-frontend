@@ -20,26 +20,28 @@ import { useAuth } from "@/context/AuthContext";
 function SearchParamsHandler({
   message,
   setMessage,
-  setHistoryId,
 }: {
   message: Chat[] | undefined;
   setMessage: React.Dispatch<React.SetStateAction<Chat[] | undefined>>;
-  setHistoryId: React.Dispatch<React.SetStateAction<string | undefined>>;
+ 
 }) {
-  const { conversationHistory, setConversationHistory, setShowResults } =
+  const { conversationHistory, setConversationHistory, setShowResults ,historyid, setHistoryId} =
     useConversation();
   const searchParams = useSearchParams();
   const historyId = searchParams ? searchParams.get("id") : null;
 
   useEffect(() => {
     if (!historyId || !conversationHistory?.data) {
+      
       // Reset state when historyId is not available
       setMessage(undefined);
       setShowResults(false);
+      setHistoryId(null);
       return;
     }
 
     // Find the conversation matching the historyId
+    setHistoryId(historyId || null);
     const foundConversation = conversationHistory.data.find(
       (item) => item.history._id === historyId
     );
@@ -64,13 +66,241 @@ export default function Home() {
     setConversationHistory,
     showResults,
     setShowResults,
+    historyid,
+    setHistoryId,
   } = useConversation();
   const [message, setMessage] = useState<Chat[]>();
   const [prompt, setPrompt] = useState("");
-  const [historyid, setHistoryId] = useState<string>();
   const { isAuthenticated } = useAuth();
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+  const data_task = async ({ response }: { response: any }) => {
+    const markdownToPlainText = (markdown: string) => {
+      return markdown
+        .replace(/###\s*/g, "")
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/-\s*/g, "")
+        .replace(/\n{2,}/g, "\n\n");
+    };
+    let title = "New Conversation";
+    let historyId = historyid;
+    const responseData = response.data?.data;
+    let redirect = false;
+    if (!historyId) {
+      try {
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/history/add`,
+          {
+            user_msg: prompt,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+
+        setHistoryId(res.data.data);
+        historyId = res.data.data;
+        title = res.data.title;
+        redirect = true;
+      } catch (error) {
+        console.error("Error adding history:", error);
+        if (axios.isAxiosError(error)) {
+          console.error("Response data:", error.response?.data);
+          console.error("Status:", error.response?.status);
+          console.error("Headers:", error.response?.headers);
+        }
+      }
+    }
+
+    const newResponse: Chat = {
+      _id: "",
+      history_id: historyId || "",
+      prompt: prompt,
+      opt_prompt: responseData.opt_prompt.response,
+      response: markdownToPlainText(responseData.bot_response.response),
+      opt_response: markdownToPlainText(
+        responseData.opt_bot_response.response
+      ),
+      prompt_metrics: {
+        grammar: 0,
+        spell_check: 0,
+        sensitive_info: 0,
+        violence: 0,
+        bias_gender: 0,
+        self_harm: 0,
+        hate_unfairness: 0,
+        jailbreak: false,
+      },
+      opt_prompt_metrics: {
+        grammar: 0,
+        spell_check: 0,
+        sensitive_info: 0,
+        violence: 0,
+        bias_gender: 0,
+        self_harm: 0,
+        hate_unfairness: 0,
+        jailbreak: false,
+      },
+      flagged: false
+    };
+
+    const stats = await axios.post(
+      `${API_BASE_URL}/llm/metrics`,
+      JSON.stringify({
+        query: prompt,
+        answer: markdownToPlainText(
+          response.data?.data.bot_response.response
+        ),
+        opt_query: markdownToPlainText(
+          response.data?.data.opt_prompt.response
+        ),
+        opt_answer: markdownToPlainText(
+          response.data?.data.opt_bot_response.response
+        ),
+        flagged: response.data?.data.flagged,
+        metrics: response.data?.data.metrics || null,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    newResponse.prompt_metrics = { ...stats.data.data.metrics };
+    newResponse.opt_prompt_metrics = { ...stats.data.data.opt_metrics };
+
+    // const newResponse: PromptHistory = {
+    //     id: "1",
+    //     date: new Date().toISOString(),
+    //     originalPrompt: "dummy",
+    //     optimizedPrompt: "dummy",
+    //     originalResponse: "dummy",
+    //     optimizedResponse: "dummy",
+    //     originalStats: {
+    //         grammar: 6,
+    //         spell_check: 7,
+    //         sensitive_info: 9,
+    //         violence: 0,
+    //         bias_gender: 0,
+    //         self_harm: 0,
+    //         hate_unfairness: 1,
+    //         jailbreak: true,
+    //     },
+    //     optimizedStats: {
+    //         grammar: 10,
+    //         spell_check: 10,
+    //         sensitive_info: 8,
+    //         violence: 0,
+    //         bias_gender: 0,
+    //         self_harm: 0,
+    //         hate_unfairness: 1,
+    //         jailbreak: false,
+    //     },
+    // };
+    setMessage((prevMessage) => [...(prevMessage || []), newResponse]);
+
+    setPrompt("");
+    setShowResults(true);
+    const addChat = async () => {
+      try {
+        const chatResponse = await axios.post(
+          `${API_BASE_URL}/chat/add`,
+          {
+            history_id: historyId,
+            prompt: newResponse.prompt,
+            response: newResponse.response,
+            opt_prompt: newResponse.opt_prompt,
+            opt_response: newResponse.opt_response,
+            prompt_metrics: newResponse.prompt_metrics,
+            opt_prompt_metrics: newResponse.opt_prompt_metrics,
+            flagged: response.data?.data.flagged,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true,
+          }
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            console.error("API Error:", error.response.data); // Log server response
+            console.error("Status Code:", error.response.status);
+          } else {
+            console.error("Request Error:", error.message);
+          }
+        } else {
+          console.error("Unexpected Error:", error);
+        }
+      }
+    };
+    await addChat();
+    try {
+      const statsResponse = await axios.post(
+        `${API_BASE_URL}/statistics/add`,
+        {
+          metrics: newResponse.prompt_metrics,
+          opt_metrics: newResponse.opt_prompt_metrics,
+          flagged: response.data?.data.flagged,
+        }
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Error posting statistics:",
+          error.response ? error.response.data : error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
+   
+      setConversationHistory((prevHistory) => {
+        if (!prevHistory) return prevHistory;
+        const existingConversation = prevHistory.data.find(
+          (conversation) => conversation.history._id === historyId
+        );
+
+        if (existingConversation) {
+          return {
+            ...prevHistory,
+            data: prevHistory.data.map((conversation) =>
+              conversation.history._id === historyId
+                ? {
+                  ...conversation,
+                  chats: [...conversation.chats, newResponse],
+                }
+                : conversation
+            ),
+          };
+        } else {
+          const newConversation: ConversationHistory = {
+            history: {
+              _id: historyId || "",
+              user_id: "",
+              title: title,
+            },
+            chats: [newResponse], // Add newResponse as the first chat entry
+          };
+
+          return {
+            ...prevHistory,
+            data: [...prevHistory.data, newConversation], // Append the new conversation
+          };
+        }
+      });
+    
+    if (redirect) {
+      window.location.href = `/?id=${historyId}`;
+    }
+  };
 
   const handlePromptSubmit = async (prompt: string) => {
     setIsProcessing(true);
@@ -88,236 +318,39 @@ export default function Home() {
           withCredentials: true,
         }
       );
-      const markdownToPlainText = (markdown: string) => {
-        return markdown
-          .replace(/###\s*/g, "")
-          .replace(/\*\*(.*?)\*\*/g, "$1")
-          .replace(/-\s*/g, "")
-          .replace(/\n{2,}/g, "\n\n");
-      };
-      let title = "New Conversation";
-      let historyId = historyid;
-      const responseData = response.data?.data;
-      let redirect = false;
-      if (!historyId) {
-        try {
-          const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/history/add`,
-            {
-              user_msg: prompt,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-              withCredentials: true,
-            }
-          );
-
-          setHistoryId(res.data.data);
-          historyId = res.data.data;
-          title = res.data.title;
-          redirect = true;
-        } catch (error) {
-          console.error("Error adding history:", error);
-          if (axios.isAxiosError(error)) {
-            console.error("Response data:", error.response?.data);
-            console.error("Status:", error.response?.status);
-            console.error("Headers:", error.response?.headers);
-          }
-        }
-      }
-
-      const newResponse: Chat = {
-        _id: "",
-        history_id: "",
-        prompt: prompt,
-        opt_prompt: responseData.opt_prompt.response,
-        response: markdownToPlainText(responseData.bot_response.response),
-        opt_response: markdownToPlainText(
-          responseData.opt_bot_response.response
-        ),
-        prompt_metrics: {
-          grammar: 0,
-          spell_check: 0,
-          sensitive_info: 0,
-          violence: 0,
-          bias_gender: 0,
-          self_harm: 0,
-          hate_unfairness: 0,
-          jailbreak: false,
-        },
-        opt_prompt_metrics: {
-          grammar: 0,
-          spell_check: 0,
-          sensitive_info: 0,
-          violence: 0,
-          bias_gender: 0,
-          self_harm: 0,
-          hate_unfairness: 0,
-          jailbreak: false,
-        },
-        flagged: false
-      };
-
-      const stats = await axios.post(
-        `${API_BASE_URL}/llm/metrics`,
-        JSON.stringify({
-          query: prompt,
-          answer: markdownToPlainText(
-            response.data?.data.bot_response.response
-          ),
-          opt_query: markdownToPlainText(
-            response.data?.data.opt_prompt.response
-          ),
-          opt_answer: markdownToPlainText(
-            response.data?.data.opt_bot_response.response
-          ),
-          flagged: response.data?.data.flagged,
-          metrics: response.data?.data.metrics || null,
-        }),
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-      newResponse.prompt_metrics = { ...stats.data.data.metrics };
-      newResponse.opt_prompt_metrics = { ...stats.data.data.opt_metrics };
-
-      // const newResponse: PromptHistory = {
-      //     id: "1",
-      //     date: new Date().toISOString(),
-      //     originalPrompt: "dummy",
-      //     optimizedPrompt: "dummy",
-      //     originalResponse: "dummy",
-      //     optimizedResponse: "dummy",
-      //     originalStats: {
-      //         grammar: 6,
-      //         spell_check: 7,
-      //         sensitive_info: 9,
-      //         violence: 0,
-      //         bias_gender: 0,
-      //         self_harm: 0,
-      //         hate_unfairness: 1,
-      //         jailbreak: true,
-      //     },
-      //     optimizedStats: {
-      //         grammar: 10,
-      //         spell_check: 10,
-      //         sensitive_info: 8,
-      //         violence: 0,
-      //         bias_gender: 0,
-      //         self_harm: 0,
-      //         hate_unfairness: 1,
-      //         jailbreak: false,
-      //     },
-      // };
-      setMessage((prevMessage) => [...(prevMessage || []), newResponse]);
-
-      setPrompt("");
-      setShowResults(true);
-      const addChat = async () => {
-        try {
-          const chatResponse = await axios.post(
-            `${API_BASE_URL}/chat/add`,
-            {
-              history_id: historyId,
-              prompt: newResponse.prompt,
-              response: newResponse.response,
-              opt_prompt: newResponse.opt_prompt,
-              opt_response: newResponse.opt_response,
-              prompt_metrics: newResponse.prompt_metrics,
-              opt_prompt_metrics: newResponse.opt_prompt_metrics,
-              flagged: response.data?.data.flagged,
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-              withCredentials: true,
-            }
-          );
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            if (error.response) {
-              console.error("API Error:", error.response.data); // Log server response
-              console.error("Status Code:", error.response.status);
-            } else {
-              console.error("Request Error:", error.message);
-            }
-          } else {
-            console.error("Unexpected Error:", error);
-          }
-        }
-      };
-      await addChat();
-      try {
-        const statsResponse = await axios.post(
-          `${API_BASE_URL}/statistics/add`,
-          {
-            metrics: newResponse.prompt_metrics,
-            opt_metrics: newResponse.opt_prompt_metrics,
-            flagged: response.data?.data.flagged,
-          }
-        );
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error(
-            "Error posting statistics:",
-            error.response ? error.response.data : error.message
-          );
-        } else {
-          console.error("Unexpected error:", error);
-        }
-      }
-      if (isAuthenticated) {
-        setConversationHistory((prevHistory) => {
-          if (!prevHistory) return prevHistory;
-          const existingConversation = prevHistory.data.find(
-            (conversation) => conversation.history._id === historyid
-          );
-
-          if (existingConversation) {
-            return {
-              ...prevHistory,
-              data: prevHistory.data.map((conversation) =>
-                conversation.history._id === historyid
-                  ? {
-                    ...conversation,
-                    chats: [...conversation.chats, newResponse],
-                  }
-                  : conversation
-              ),
-            };
-          } else {
-            const newConversation: ConversationHistory = {
-              history: {
-                _id: historyId || "",
-                user_id: "",
-                title: title,
-              },
-              chats: [newResponse], // Add newResponse as the first chat entry
-            };
-
-            return {
-              ...prevHistory,
-              data: [...prevHistory.data, newConversation], // Append the new conversation
-            };
-          }
-        });
-      }
-      // if (redirect) {
-      //   window.location.href = `/?id=${historyId}`;
-      // }
+      await data_task({ response });
+      
     } catch (error) {
       console.error("Error processing prompt:", error);
     } finally {
       setIsProcessing(false);
     }
   };
+
+  const handleVoiceSubmit = async (voice: Blob) => {
+    setIsProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append("audio", voice); // Ensure key matches API
+      // formData.append("language_code", languageCode);
+  
+      const response = await axios.post(`${API_BASE_URL}/llm/voice`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          // "Cookie": cookie,
+        },
+        withCredentials: true, // Ensures cookies are sent
+      });
+  
+      await data_task({ response });
+    } catch (error) {
+      console.error("Error processing voice:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  
 
   return (
     <div className="min-h-screen">
@@ -343,7 +376,6 @@ export default function Home() {
         <SearchParamsHandler
           message={message}
           setMessage={setMessage}
-          setHistoryId={setHistoryId}
         />
       </Suspense>
 
@@ -360,7 +392,7 @@ export default function Home() {
                 {/* Center-align the content */}
                 <div className="flex flex-col items-center">
                   <h2 className="text-xl font-semibold mb-4 text-center">
-                    Prompt {index + 1} -{" "}
+                    Prompt {index + 1} 
                     {/* {new Date(
                                             promptData.date
                                         ).toLocaleString()} */}
@@ -389,6 +421,7 @@ export default function Home() {
             prompt={prompt}
             setPrompt={setPrompt}
             onSubmit={handlePromptSubmit}
+            handleVoiceSubmit={handleVoiceSubmit}
             isProcessing={isProcessing}
           />
         </div>

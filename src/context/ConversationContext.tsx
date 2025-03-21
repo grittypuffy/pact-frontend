@@ -10,6 +10,8 @@ interface ConversationContextType {
     setShowResults: React.Dispatch<React.SetStateAction<boolean>>;
     message: Chat[];
     setMessage: React.Dispatch<React.SetStateAction<Chat[]>>;
+    historyid: string | null;
+    setHistoryId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(undefined);
@@ -18,10 +20,11 @@ export const ConversationProvider = ({ children }: { children: React.ReactNode }
     const [conversationHistory, setConversationHistory] = useState<ConversationResponse>({} as ConversationResponse);
     const [showResults, setShowResults] = useState<boolean>(false);
     const [message, setMessage] = useState<Chat[]>([]);
+    const [historyid, setHistoryId] = useState<string | null>(null);
 
     return (
         <ConversationContext.Provider
-            value={{ conversationHistory, setConversationHistory, showResults, setShowResults, message, setMessage }}
+            value={{ conversationHistory, setConversationHistory, showResults, setShowResults, message, setMessage, historyid, setHistoryId }}
         >
             {children}
         </ConversationContext.Provider>

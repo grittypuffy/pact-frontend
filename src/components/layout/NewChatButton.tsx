@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useConversation } from "@/context/ConversationContext";
 
 const NewChatButton = () => {
-  const { setMessage} = useConversation();
+  const { setMessage, setHistoryId} = useConversation();
 
 
   return (
@@ -18,7 +18,7 @@ const NewChatButton = () => {
           color: "var(--button-text-color, #fff)",
         }}
         onClick={() => {setMessage([]) 
-          
+                        setHistoryId(null)
         }}
       >
         <span className="mr-2">+</span>
