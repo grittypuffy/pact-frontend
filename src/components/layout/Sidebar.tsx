@@ -12,10 +12,28 @@ import NewChatButton from './NewChatButton';
 import { useConversation } from "@/context/ConversationContext";
 import axios from 'axios';
 
-// const HomeIcon = () => <div className="w-5 h-5">🏠</div>;
 const AboutIcon = () => <div className="w-5 h-5">ℹ️</div>;
 const InsightsIcon = () => <div className="w-5 h-5">📊</div>;
 const StatisticsIcon = () => <div className="w-5 h-5">📈</div>;
+
+const InfoButton = ({ message }: { message: string }) => (
+  <div className="relative group">
+    <button className="ml-auto text-gray-400 hover:text-gray-200 focus:outline-none">
+      🛈
+    </button>
+    
+    {/* Tooltip */}
+    <div className="absolute left-[250%] bottom-full mb-2 w-max max-w-xs -translate-x-1/2 hidden group-hover:flex flex-col items-center">
+      <div className="right-1 relative bg-black text-white text-xs rounded-lg px-3 py-2 shadow-lg">
+        {message}
+        {/* Arrow at the bottom */}
+        <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+      </div>
+    </div>
+  </div>
+);
+
+
 
 interface HistoryDisplay {
   historyId: string;
@@ -28,36 +46,32 @@ const Sidebar = () => {
   const [history, setHistory] = useState<HistoryDisplay[]>([]);
   const { conversationHistory, setConversationHistory, showResults, setShowResults } = useConversation();
 
-useEffect(() => {
-  const fetchData = async () => {
-    if (!isAuthenticated) {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/get`,
-        {
-          withCredentials: true,
-        }
-      );
-      setConversationHistory(res.data);
-      setShowResults(true);
-    }
-    if (isAuthenticated && conversationHistory && conversationHistory.data) {
-      const mappedHistory: HistoryDisplay[] = conversationHistory.data.map((item) => ({
-        historyId: item.history._id,
-        title: item.history.title,
-      }));
-      
-      setHistory(mappedHistory);
-    }
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isAuthenticated) {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/get`,
+          { withCredentials: true }
+        );
+        setConversationHistory(res.data);
+        setShowResults(true);
+      }
+      if (isAuthenticated && conversationHistory && conversationHistory.data) {
+        const mappedHistory: HistoryDisplay[] = conversationHistory.data.map((item) => ({
+          historyId: item.history._id,
+          title: item.history.title,
+        }));
+        setHistory(mappedHistory);
+      }
+    };
 
-  fetchData();
-}, [conversationHistory, isAuthenticated]);
+    fetchData();
+  }, [conversationHistory, isAuthenticated]);
 
   const tabLinks = [
-    // { name: 'Home', path: '/', icon: <HomeIcon /> },
-    { name: 'About', path: '/about', icon: <AboutIcon /> },
-    { name: 'Insights', path: '/insights', icon: <InsightsIcon />, requiresAuth: true },
-    { name: 'Statistics', path: '/statistics', icon: <StatisticsIcon /> },
+    { name: 'About Us', path: '/about', icon: <AboutIcon />, info: "Learn about our platform, its features, the services we offer, and the team behind it" },
+    { name: 'User Insights', path: '/insights', icon: <InsightsIcon />, requiresAuth: true, info: "View user insightsTrack your personalized prompt performance with detailed statistics. Compare past prompts based on key parameters (grammar, spelling, bias reduction, hate speech, violence, jailbreaking attempts, sensitive data) to improve your prompt engineering skills" },
+    { name: 'Platform Statistics', path: '/statistics', icon: <StatisticsIcon />, info: "Explore how our platform has optimized prompts over time. See improvements in grammar, spelling, bias reduction, security checks (hate speech, violence, jailbreaking attempts, sensitive data), and more." },
   ];
 
   return (
@@ -72,7 +86,6 @@ useEffect(() => {
         style={{ borderColor: "rgba(var(--foreground-rgb), 0.2)" }}>
         <style jsx>{`
           @import url('https://fonts.googleapis.com/css?family=Cairo');
-          
           .animated-text {
             background-image: url(https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWFqaDdmbmk3dmZrbHNzdjBtdjduMXp5M3ZhZ2JobjM4NjVzcjdkYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26ufmyrjQ4BmKN7xe/giphy.gif);
             background-size: cover;
@@ -96,25 +109,25 @@ useEffect(() => {
           if (tab.requiresAuth && !isAuthenticated && tab.path === '/insights') {
             return null;
           }
-          
+
           const isActive = pathname === tab.path;
           return (
-            <Link 
-              href={tab.path} 
-              key={tab.name}
-              className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                isActive 
-                  ? 'tab-active bg-opacity-20' 
-                  : 'hover:bg-opacity-10'
-              }`}
-              style={{
-                backgroundColor: isActive ? "rgba(var(--primary-color), 0.1)" : "transparent",
-                color: isActive ? "rgb(var(--primary-color))" : "rgb(var(--foreground-rgb))"
-              }}
-            >
-              <span className="mr-3">{tab.icon}</span>
-              {tab.name}
-            </Link>
+            <div key={tab.name} className="flex items-center">
+              <Link 
+                href={tab.path}
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  isActive ? 'tab-active bg-opacity-20' : 'hover:bg-opacity-10'
+                }`}
+                style={{
+                  backgroundColor: isActive ? "rgba(var(--primary-color), 0.1)" : "transparent",
+                  color: isActive ? "rgb(var(--primary-color))" : "rgb(var(--foreground-rgb))"
+                }}
+              >
+                <span className="mr-3">{tab.icon}</span>
+                {tab.name}
+              </Link>
+              <InfoButton message={tab.info} />
+            </div>
           );
         })}
       </nav>
@@ -126,21 +139,19 @@ useEffect(() => {
             Recent Conversations
           </h3>
         </div>
-        
+
         {/* New Chat Button */}
         <NewChatButton />
 
         {/* History Items */}
-        { isAuthenticated &&(
+        {isAuthenticated && (
           <div className="mt-2 space-y-1">
             {history.map((item) => (
               <HistoryItem key={item.historyId} historyItem={item} />
             ))}
           </div>
-          
         )}
-        
-        </div>
+      </div>
 
       <div className="border-t p-4" style={{ borderColor: "rgba(var(--foreground-rgb), 0.2)" }}>
         <UserProfile />

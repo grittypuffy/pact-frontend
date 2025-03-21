@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             });
         } catch (error) {
             console.error("Logout error:", error);
-            // Continue with logout even if the API call fails
+            
         } finally {
             // Always clear local state regardless of API success
             setUser(null);
