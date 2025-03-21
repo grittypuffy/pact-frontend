@@ -106,7 +106,7 @@ export default function Home() {
       const responseData = response.data?.data;
       let redirect = false;
 
-      if (!historyId) {
+      if (!historyId && isAuthenticated) {
         try {
           const res = await axios.post(
             `${
@@ -182,14 +182,14 @@ export default function Home() {
             response.data?.data.opt_bot_response.response
           ),
           flagged: response.data?.data.flagged,
-          metrics: response.data?.data.metrics || null 
+          metrics: response.data?.data.metrics || null,
         }),
         {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
-          withCredentials: true
+          withCredentials: true,
         }
       );
       newResponse.prompt_metrics = { ...stats.data.data.metrics };
@@ -282,40 +282,42 @@ export default function Home() {
           }
         }
       }
-      setConversationHistory((prevHistory) => {
-        if (!prevHistory) return prevHistory;
-        const existingConversation = prevHistory.data.find(
-          (conversation) => conversation.history._id === historyid
-        );
+      if (isAuthenticated) {
+        setConversationHistory((prevHistory) => {
+          if (!prevHistory) return prevHistory;
+          const existingConversation = prevHistory.data.find(
+            (conversation) => conversation.history._id === historyid
+          );
 
-        if (existingConversation) {
-          return {
-            ...prevHistory,
-            data: prevHistory.data.map((conversation) =>
-              conversation.history._id === historyid
-                ? {
-                    ...conversation,
-                    chats: [...conversation.chats, newResponse],
-                  }
-                : conversation
-            ),
-          };
-        } else {
-          const newConversation: ConversationHistory = {
-            history: {
-              _id: historyId || "",
-              user_id: "",
-              title: title,
-            },
-            chats: [newResponse], // Add newResponse as the first chat entry
-          };
+          if (existingConversation) {
+            return {
+              ...prevHistory,
+              data: prevHistory.data.map((conversation) =>
+                conversation.history._id === historyid
+                  ? {
+                      ...conversation,
+                      chats: [...conversation.chats, newResponse],
+                    }
+                  : conversation
+              ),
+            };
+          } else {
+            const newConversation: ConversationHistory = {
+              history: {
+                _id: historyId || "",
+                user_id: "",
+                title: title,
+              },
+              chats: [newResponse], // Add newResponse as the first chat entry
+            };
 
-          return {
-            ...prevHistory,
-            data: [...prevHistory.data, newConversation], // Append the new conversation
-          };
-        }
-      });
+            return {
+              ...prevHistory,
+              data: [...prevHistory.data, newConversation], // Append the new conversation
+            };
+          }
+        });
+      }
       if (redirect) {
         window.location.href = `/?id=${historyId}`;
       }

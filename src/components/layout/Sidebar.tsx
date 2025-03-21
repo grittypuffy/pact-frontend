@@ -48,7 +48,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!isAuthenticated) {
+      if (isAuthenticated) {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/get`,
           { withCredentials: true }
