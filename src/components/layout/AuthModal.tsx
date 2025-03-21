@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useConversation } from "@/context/ConversationContext";
-import axios from "axios";
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,12 +15,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
   const { login, signup, isLoading, error, checkUsernameAvailability } =
     useAuth();
   const [view, setView] = useState<"login" | "signup">(initialView);
-  const {
-    conversationHistory,
-    setConversationHistory,
-    showResults,
-    setShowResults,
-  } = useConversation();
+  
   // Login form state
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -134,7 +128,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
       }
     } catch (error) {
       console.error("Error checking username:", error);
-      // Don't block signup if availability check fails
+     
       setUsernameAvailable(true);
     } finally {
       setIsCheckingUsername(false);
@@ -148,7 +142,7 @@ const AuthModal: React.FC<AuthModalProps> = ({
 
     try {
       await login(loginUsername, loginPassword);
-      
+      window.location.reload();
       handleClose();
     } catch (error) {
       console.error("Login handling error:", error);

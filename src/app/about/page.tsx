@@ -5,18 +5,12 @@ import React from 'react';
 export default function About() {
   return (
     <div className="min-h-screen">
-      <header 
-        className="w-full p-4 shadow-sm transition-all duration-300 border-b"
-        style={{
-          background: 'rgba(var(--primary-color), 0.2)',
-          color: 'rgb(var(--foreground-rgb))',
-          borderColor: 'rgba(var(--foreground-rgb), 0.2)',
-        }}
+     <h1
+        className="text-3xl font-bold mb-8 px-4 py-8"
+        style={{ color: "rgb(var(--foreground-rgb))" }}
       >
-        <h1 className="text-2xl font-bold text-center">
-          About PACT
-        </h1>
-      </header>
+       About PACT
+      </h1>
 
       <div className="container mx-auto p-6 max-w-4xl">
         <div 

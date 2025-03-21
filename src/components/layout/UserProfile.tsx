@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import AuthModal from '@/components/layout/AuthModal';
+import { useConversation } from '@/context/ConversationContext';
+import { ConversationResponse } from '@/lib/data';
 
 const UserProfile = () => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalView, setModalView] = useState<'login' | 'signup'>('login');
-
+  const { setConversationHistory } = useConversation();
   const handleLogout = async () => {
+    setConversationHistory({} as ConversationResponse);
     await logout();
   };
 
