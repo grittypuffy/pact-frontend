@@ -1,26 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
-import { PromptHistory } from '@/lib/data';
 
 interface HistoryItemProps {
-  historyItem: PromptHistory;
+  historyItem: {
+    historyId: string;
+    title: string;
+  };
 }
 
 const HistoryItem: React.FC<HistoryItemProps> = ({ historyItem }) => {
-  // Format the date to a readable format
-  const formattedDate = new Date(historyItem.date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  });
-
-  // Truncate the prompt text for display
-  const truncateText = (text: string, maxLength: number = 30) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
-  };
-
   return (
-    <Link href={`/?id=${historyItem.id}`} className="block">
+    <Link href={`/?id=${historyItem.historyId}`} className="block">
       <div
         className="flex items-center px-2 py-2 text-sm rounded-md transition-colors"
         style={{
@@ -35,20 +25,11 @@ const HistoryItem: React.FC<HistoryItemProps> = ({ historyItem }) => {
             color: "rgb(var(--primary-color))",
           }}
         >
-          {historyItem.id[0].toUpperCase()}
+          {historyItem.title[0].toUpperCase()}
         </div>
         <div className="ml-3 overflow-hidden">
-          <p
-            className="text-sm font-medium truncate"
-            style={{ color: "rgb(var(--foreground-rgb))" }}
-          >
-            {truncateText(historyItem.originalPrompt)}
-          </p>
-          <p
-            className="text-xs"
-            style={{ color: "rgba(var(--foreground-rgb), 0.7)" }}
-          >
-            {formattedDate}
+          <p className="text-sm font-medium truncate" style={{ color: "rgb(var(--foreground-rgb))" }}>
+            {historyItem.title} {/* ✅ Fixed here */}
           </p>
         </div>
       </div>

@@ -19,7 +19,7 @@ const StatisticsComparison: React.FC<StatisticsComparisonProps> = ({
     useEffect(() => {
         setOriginal(originalStats);
         setOptimized(optimizedStats);
-        console.log(originalStats, optimizedStats);
+      
     }, [originalStats, optimizedStats]);
 
     const metrics = [

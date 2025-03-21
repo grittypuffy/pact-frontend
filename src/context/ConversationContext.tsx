@@ -1,24 +1,27 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
-import { PromptHistory } from "@/lib/data"; 
+import { ConversationResponse, Chat } from "@/lib/data"; 
 
 interface ConversationContextType {
-    conversationHistory: PromptHistory[];
-    setConversationHistory: React.Dispatch<React.SetStateAction<PromptHistory[]>>;
+    conversationHistory: ConversationResponse;
+    setConversationHistory: React.Dispatch<React.SetStateAction<ConversationResponse>>;
     showResults: boolean;
     setShowResults: React.Dispatch<React.SetStateAction<boolean>>;
+    messsage: Chat[];
+    setMessage: React.Dispatch<React.SetStateAction<Chat[]>>;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(undefined);
 
 export const ConversationProvider = ({ children }: { children: React.ReactNode }) => {
-    const [conversationHistory, setConversationHistory] = useState<PromptHistory[]>([]);
+    const [conversationHistory, setConversationHistory] = useState<ConversationResponse>({} as ConversationResponse);
     const [showResults, setShowResults] = useState<boolean>(false);
+    const [message, setMessage] = useState<Chat[]>([]);
 
     return (
         <ConversationContext.Provider
-            value={{ conversationHistory, setConversationHistory, showResults, setShowResults }}
+            value={{ conversationHistory, setConversationHistory, showResults, setShowResults, message, setMessage }}
         >
             {children}
         </ConversationContext.Provider>
