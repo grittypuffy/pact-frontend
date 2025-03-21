@@ -8,7 +8,7 @@ interface ConversationContextType {
     setConversationHistory: React.Dispatch<React.SetStateAction<ConversationResponse>>;
     showResults: boolean;
     setShowResults: React.Dispatch<React.SetStateAction<boolean>>;
-    messsage: Chat[];
+    message: Chat[];
     setMessage: React.Dispatch<React.SetStateAction<Chat[]>>;
 }
 
