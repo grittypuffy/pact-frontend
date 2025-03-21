@@ -64,7 +64,7 @@ export default function Home() {
 
         try {
             const response = await axios.get(
-                `${API_BASE_URL}/llm/${encodeURIComponent(prompt)}`,
+                `${API_BASE_URL}/llm/prompt?prompt=${encodeURIComponent(prompt)}`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -79,12 +79,12 @@ export default function Home() {
                     .replace(/\n{2,}/g, "\n\n");
             };
             let title="New Conversation";
-            let historyId = "";
+            let historyId = historyid;
             const responseData = response.data?.data;
             let redirect=false;
-            console.log("Not working till here")
+         
             if (!message) {
-                console.log("Works fine till here");
+                
             
                 try {
                     const res = await axios.post(
@@ -167,6 +167,9 @@ export default function Home() {
             );
             newResponse.prompt_metrics = { ...stats.data.data.metrics };
             newResponse.opt_prompt_metrics = { ...stats.data.data.opt_metrics };
+
+
+
           
             // const newResponse: PromptHistory = {
             //     id: "1",
@@ -200,14 +203,32 @@ export default function Home() {
                 ...(prevMessage || []),
                 newResponse,
             ]);
+
             setPrompt("");
             setShowResults(true);
+            try {
+                const statsResponse = await axios.post(`${API_BASE_URL}/statistics/add`, {
+                    "metrics": newResponse.prompt_metrics,
+                    "opt_metrics": newResponse.opt_prompt_metrics,
+                });
+            
+                console.log("Stats Response:", statsResponse);
+                console.log("Stats Response:", statsResponse);
+                console.log("New Response:", historyid);
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.error("Error posting statistics:", error.response ? error.response.data : error.message);
+                } else {
+                    console.error("Unexpected error:", error);
+                }
+            }
+           
             const addChat = async () => {
                 try {
                     const response = await axios.post(
                         `${API_BASE_URL}/chat/add`,
                         {
-                            history_id: historyid,
+                            history_id: historyId,
                             prompt: newResponse.prompt,
                             response: newResponse.response,
                             opt_prompt: newResponse.opt_prompt,
@@ -240,14 +261,11 @@ export default function Home() {
             addChat();
             setConversationHistory((prevHistory) => {
                 if (!prevHistory) return prevHistory;
-            
-                // Check if historyId exists in the current conversation history
                 const existingConversation = prevHistory.data.find(
                     (conversation) => conversation.history._id === historyid
                 );
             
                 if (existingConversation) {
-                    // If the history exists, append new chat to its chats array
                     return {
                         ...prevHistory,
                         data: prevHistory.data.map((conversation) =>
@@ -260,12 +278,12 @@ export default function Home() {
                         ),
                     };
                 } else {
-                    // If the history doesn't exist, create a new conversation entry
+                    
                     const newConversation: ConversationHistory = {
                         history: {
-                            _id: historyId || "", // Set historyId or empty string
+                            _id: historyId || "", 
                             user_id: "", 
-                            title: title, // Default title (you can modify this)
+                            title: title,
                         },
                         chats: [newResponse], // Add newResponse as the first chat entry
                     };
@@ -277,7 +295,8 @@ export default function Home() {
                 }
             });
             if(redirect){
-                window.location.href = `/?id=${historyid}`;
+                window.location.href = `/?id=${historyId}`;
+                
             }
             
            
