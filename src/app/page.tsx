@@ -32,32 +32,26 @@ function SearchParamsHandler({
   const historyId = searchParams ? searchParams.get("id") : null;
 
   useEffect(() => {
-    if (historyId) {
-      setHistoryId(historyId);
-      // Find the conversation matching the historyId
+    if (!historyId || !conversationHistory?.data) {
+      // Reset state when historyId is not available
+      setMessage(undefined);
+      setShowResults(false);
+      return;
+    }
 
-      const foundConversation = conversationHistory?.data?.find(
-        (item) => item.history._id === historyId
-      );
+    // Find the conversation matching the historyId
+    const foundConversation = conversationHistory.data.find(
+      (item) => item.history._id === historyId
+    );
 
-      if (foundConversation) {
-        // Set the selected message
-        setMessage(foundConversation.chats);
-        // Show results
-        setShowResults(true);
-      }
+    if (foundConversation) {
+      setMessage(foundConversation.chats);
+      setShowResults(true);
     } else {
-      // Reset when no historyId is found
       setMessage(undefined);
       setShowResults(false);
     }
-  }, [
-    historyId,
-    conversationHistory,
-    setMessage,
-    setConversationHistory,
-    setShowResults,
-  ]);
+  }, [historyId, conversationHistory]);
 
   return null;
 }
@@ -105,14 +99,14 @@ export default function Home() {
       let historyId = historyid;
       const responseData = response.data?.data;
       let redirect = false;
-
+      console.log("what the hell", historyId, isAuthenticated);
       if (!historyId && isAuthenticated) {
         try {
           const res = await axios.post(
-            `${
-              process.env.NEXT_PUBLIC_BACKEND_URL
-            }/history/add?user_msg=${encodeURIComponent(prompt)}`,
-            {},
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/history/add`,
+            {
+              user_msg: prompt,
+            },
             {
               headers: {
                 "Content-Type": "application/json",
@@ -230,7 +224,7 @@ export default function Home() {
       if (isAuthenticated) {
         const addChat = async () => {
           try {
-            const response = await axios.post(
+            const chatResponse = await axios.post(
               `${API_BASE_URL}/chat/add`,
               {
                 history_id: historyId,
@@ -240,6 +234,7 @@ export default function Home() {
                 opt_response: newResponse.opt_response,
                 prompt_metrics: newResponse.prompt_metrics,
                 opt_prompt_metrics: newResponse.opt_prompt_metrics,
+                flagged: response.data?.data.flagged,
               },
               {
                 headers: {
@@ -261,25 +256,25 @@ export default function Home() {
             }
           }
         };
-        addChat();
-        try {
-          const statsResponse = await axios.post(
-            `${API_BASE_URL}/statistics/add`,
-            {
-              metrics: newResponse.prompt_metrics,
-              opt_metrics: newResponse.opt_prompt_metrics,
-              flagged: response.data?.data.flagged,
-            }
-          );
-        } catch (error) {
-          if (axios.isAxiosError(error)) {
-            console.error(
-              "Error posting statistics:",
-              error.response ? error.response.data : error.message
-            );
-          } else {
-            console.error("Unexpected error:", error);
+        await addChat();
+      }
+      try {
+        const statsResponse = await axios.post(
+          `${API_BASE_URL}/statistics/add`,
+          {
+            metrics: newResponse.prompt_metrics,
+            opt_metrics: newResponse.opt_prompt_metrics,
+            flagged: response.data?.data.flagged,
           }
+        );
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          console.error(
+            "Error posting statistics:",
+            error.response ? error.response.data : error.message
+          );
+        } else {
+          console.error("Unexpected error:", error);
         }
       }
       if (isAuthenticated) {
@@ -318,9 +313,9 @@ export default function Home() {
           }
         });
       }
-      if (redirect) {
-        window.location.href = `/?id=${historyId}`;
-      }
+      // if (redirect) {
+      //   window.location.href = `/?id=${historyId}`;
+      // }
     } catch (error) {
       console.error("Error processing prompt:", error);
     } finally {
