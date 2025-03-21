@@ -43,6 +43,7 @@ export interface Chat {
   opt_response: string;
   prompt_metrics: PromptStatistics;
   opt_prompt_metrics: PromptStatistics;
+  flagged: boolean;
 }
 
 export interface PromptStatistics {

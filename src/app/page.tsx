@@ -111,8 +111,10 @@ export default function Home() {
           const res = await axios.post(
             `${
               process.env.NEXT_PUBLIC_BACKEND_URL
-            }/history/add?user_msg=${encodeURIComponent(prompt)}`,
-            {},
+            }/history/add`,
+            {
+              user_msg: prompt
+            },
             {
               headers: {
                 "Content-Type": "application/json",
@@ -127,8 +129,6 @@ export default function Home() {
           redirect = true;
         } catch (error) {
           console.error("Error adding history:", error);
-
-          // If the error is from Axios, log additional details
           if (axios.isAxiosError(error)) {
             console.error("Response data:", error.response?.data);
             console.error("Status:", error.response?.status);
@@ -166,6 +166,7 @@ export default function Home() {
           hate_unfairness: 0,
           jailbreak: false,
         },
+        flagged: false
       };
 
       const stats = await axios.post(
@@ -227,6 +228,7 @@ export default function Home() {
 
       setPrompt("");
       setShowResults(true);
+      console.log(isAuthenticated);
       if (isAuthenticated) {
         const addChat = async () => {
           try {
@@ -240,6 +242,7 @@ export default function Home() {
                 opt_response: newResponse.opt_response,
                 prompt_metrics: newResponse.prompt_metrics,
                 opt_prompt_metrics: newResponse.opt_prompt_metrics,
+                flagged: responseData.flagged || false
               },
               {
                 headers: {
