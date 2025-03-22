@@ -25,6 +25,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   const [audioURL, setAudioURL] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [language, setLanguage] = useState(selectedLanguage);
   const languages = [
     'English',
     'Portuguese',
@@ -85,6 +86,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
   };
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLanguage(e.target.value);
     if (onLanguageChange) {
       onLanguageChange(e);
     }
@@ -112,7 +114,7 @@ const PromptInput: React.FC<PromptInputProps> = ({
         <div className="flex justify-end items-center space-x-2">
           {/* Language selector */}
           <select
-            value={selectedLanguage}
+            value={language}
             onChange={handleLanguageChange}
             className="px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2"
             style={{
