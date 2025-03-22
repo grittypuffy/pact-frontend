@@ -15,7 +15,8 @@ cd pact-frontend
 yarn install
 ```
 
-# Start development server. Should be accessible at https://localhost:3000/ 
+# Start development server. 
+Should be accessible at https://localhost:3000/ 
 ```shell
 yarn dev --experimental-https 
 ```
