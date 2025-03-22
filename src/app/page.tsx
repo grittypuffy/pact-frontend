@@ -92,7 +92,7 @@ export default function Home() {
         const res = await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/history/add`,
           {
-            user_msg: prompt,
+            user_msg: prompt || response.data?.data?.prompt || "",
           },
           {
             headers: {
@@ -119,7 +119,7 @@ export default function Home() {
     const newResponse: Chat = {
       _id: "",
       history_id: historyId || "",
-      prompt: prompt,
+      prompt: prompt || responseData?.prompt || "",
       opt_prompt: responseData.opt_prompt.response,
       response: markdownToPlainText(responseData.bot_response.response),
       opt_response: markdownToPlainText(
@@ -151,7 +151,7 @@ export default function Home() {
     const stats = await axios.post(
       `${API_BASE_URL}/llm/metrics`,
       JSON.stringify({
-        query: prompt,
+        query: prompt || responseData?.prompt || "",
         answer: markdownToPlainText(
           response.data?.data.bot_response.response
         ),
@@ -337,7 +337,6 @@ export default function Home() {
       const response = await axios.post(`${API_BASE_URL}/llm/voice`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          // "Cookie": cookie,
         },
         withCredentials: true, // Ensures cookies are sent
       });

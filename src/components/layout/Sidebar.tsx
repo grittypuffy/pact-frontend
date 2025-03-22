@@ -42,6 +42,7 @@ const Sidebar = () => {
   const pathname = usePathname();
   const { isAuthenticated } = useAuth();
   const [history, setHistory] = useState<HistoryDisplay[]>([]);
+  const [conversationHistoryGet, setConversationHistoryGet] = useState(false);
   const {
     conversationHistory,
     setConversationHistory,
@@ -49,11 +50,12 @@ const Sidebar = () => {
     setShowResults,
   } = useConversation();
   const fetchData = async () => {
-    if (!isAuthenticated) {
+    if (isAuthenticated && !conversationHistoryGet) {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/chat/get`,
         { withCredentials: true }
       );
+      setConversationHistoryGet(true);
       setConversationHistory(res.data);
       setShowResults(true);
     }
