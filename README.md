@@ -1,49 +1,36 @@
-# PACT Frontend
+<h1>PACT: Prompt Auto-Correction and Testing</h1>
+<h6>"A golden gateway to improve prompt-engineering skills of the users."</h6>
 
-PACT (Prompt Auto-Correction and Testing) is a prompt pre-processing layer that enhances user prompts to improve AI response quality.
+# Frontend Development
 
-## Features
+Run the frontend locally by using Next.js development server
 
-- User prompt input and optimization
-- Side-by-side comparison of original and optimized prompts
-- Detailed statistics on prompt improvements
-- Comparison of AI responses
-- User insights and platform statistics
-- Dark and light mode support
+```shell
+git clone https://github.com/grittypuffy/pact-frontend
+cd pact-frontend
+```
 
-## Tech Stack
+# Install dependencies
+```shell
+yarn install
+```
 
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- Docker
-- Yarn
+# Start development server. Should be accessible at https://localhost:3000/ 
+```shell
+yarn dev --experimental-https 
+```
+Build the frontend and preview it by
 
-## Getting Started
+```shell
+yarn build
+yarn start
+```
+## Docker
 
-### Prerequisites
+1. Build the Docker image using the following command:
 
-- Node.js (v16 or higher)
-- Yarn
-- Docker (optional)
+```shell
+docker buildx build -t pact-frontend:latest .
+```
 
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/pact-frontend.git
-   cd pact-frontend
-   ```
-
-2. Install dependencies:
-   ```bash
-   yarn install
-   ```
-
-3. Start the development server:
-   ```bash
-   yarn dev
-   ```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+2. Deploy it using docker run command or by pushing to a container registry (Azure Container Registry or Docker Hub) by tagging the image appropriately.
