@@ -94,7 +94,7 @@ const Sidebar = () => {
       path: "/insights",
       icon: <InsightsIcon />,
       requiresAuth: true,
-      info: "View user insightsTrack your personalized prompt performance with detailed statistics. Compare past prompts based on key parameters (grammar, spelling, bias reduction, hate speech, violence, jailbreaking attempts, sensitive data) to improve your prompt engineering skills",
+      info: "Track your personalized prompt performance with detailed statistics. Compare past prompts based on key parameters (grammar, spelling, bias reduction, hate speech, violence, jailbreaking attempts, sensitive data) to improve your prompt engineering skills.",
     },
     {
       name: "Platform Statistics",
