@@ -167,9 +167,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 username: username,
             };
 
-            setUser(userInfo);
-            setIsAuthenticated(true);
-            localStorage.setItem("user", JSON.stringify(userInfo));
+            // setUser(userInfo);
+            // setIsAuthenticated(true);
+            // localStorage.setItem("user", JSON.stringify(userInfo));
         } catch (error) {
             console.error("Signup error:", error);
             setError(
