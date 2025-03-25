@@ -261,7 +261,7 @@ export default function Home() {
         console.error("Unexpected error:", error);
       }
     }
-   
+    if (isAuthenticated) {
       setConversationHistory((prevHistory) => {
         if (!prevHistory) return prevHistory;
         const existingConversation = prevHistory.data.find(
@@ -296,9 +296,9 @@ export default function Home() {
           };
         }
       });
-    
-    if (redirect) {
-      window.location.href = `/?id=${historyId}`;
+      if (redirect) {
+        window.location.href = `/?id=${historyId}`;
+      }  
     }
   };
 
