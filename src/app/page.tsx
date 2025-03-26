@@ -77,12 +77,14 @@ export default function Home() {
 
   const data_task = async ({ response }: { response: any }) => {
     const markdownToPlainText = (markdown: string) => {
-      return markdown
-        .replace(/###\s*/g, "")
-        .replace(/\*\*(.*?)\*\*/g, "$1")
-        .replace(/-\s*/g, "")
-        .replace(/\n{2,}/g, "\n\n");
+      return markdown;
     };
+    //  return markdown
+    //    .replace(/###\s*/g, "")
+    //    .replace(/\*\*(.*?)\*\*/g, "$1")
+    //    .replace(/-\s*/g, "")
+    //    .replace(/\n{2,}/g, "\n\n");
+    //};
     let title = "New Conversation";
     let historyId = historyid;
     const responseData = response.data?.data;

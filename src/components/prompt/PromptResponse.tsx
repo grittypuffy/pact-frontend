@@ -2,6 +2,9 @@
 
 import React from 'react';
 
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+
 interface PromptResponseProps {
   originalResponse: string;
   optimizedResponse: string;
@@ -35,9 +38,9 @@ const PromptResponse: React.FC<PromptResponseProps> = ({ originalResponse, optim
             className="border-t pt-2"
             style={{ borderColor: "rgba(var(--foreground-rgb), 0.2)" }}
           >
-            <p className="whitespace-pre-wrap">
+            <Markdown remarkPlugins={[remarkGfm]}>
               {originalResponse}
-            </p>
+            </Markdown>
           </div>
         </div>
 
@@ -61,9 +64,12 @@ const PromptResponse: React.FC<PromptResponseProps> = ({ originalResponse, optim
             className="border-t pt-2"
             style={{ borderColor: "rgba(var(--primary-color), 0.5)" }}
           >
-            <p className="whitespace-pre-wrap">
+            {
+              //className="whitespace-pre-wrap">
+            }
+            <Markdown remarkPlugins={[remarkGfm]}>
               {optimizedResponse}
-            </p>
+            </Markdown>
           </div>
         </div>
       </div>

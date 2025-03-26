@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface PromptComparisonProps {
   originalPrompt: string;
@@ -30,12 +32,13 @@ const PromptComparison: React.FC<PromptComparisonProps> = ({ originalPrompt, opt
             className="border-t pt-2"
             style={{ borderColor: "rgba(var(--foreground-rgb), 0.2)" }}
           >
-            <p
-              className="whitespace-pre-wrap"
-              style={{ color: "rgba(var(--foreground-rgb), 0.8)" }}
-            >
+            <Markdown remarkPlugins={[remarkGfm]}>
               {originalPrompt}
-            </p>
+            </Markdown>
+            {
+              //className="whitespace-pre-wrap"
+              //style={{ color: "rgba(var(--foreground-rgb), 0.8)" }}
+            }
           </div>
         </div>
 
@@ -57,12 +60,17 @@ const PromptComparison: React.FC<PromptComparisonProps> = ({ originalPrompt, opt
             className="border-t pt-2"
             style={{ borderColor: "rgba(var(--primary-color), 0.5)" }}
           >
-            <p
-              className="whitespace-pre-wrap"
-              style={{ color: "rgba(var(--foreground-rgb), 0.8)" }}
-            >
+            <Markdown remarkPlugins={[remarkGfm]}>
               {optimizedPrompt}
-            </p>
+            </Markdown>
+            {
+              //<p
+              //className="whitespace-pre-wrap"
+              //style={{ color: "rgba(var(--foreground-rgb), 0.8)" }}
+            //>
+              //{optimizedPrompt}
+            //</p>
+            }
           </div>
         </div>
 
